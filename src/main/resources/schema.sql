@@ -1,0 +1,2 @@
+CREATE SCHEMA IF NOT EXISTS minicurso;
+CREATE TABLE IF NOT EXISTS minicurso.clientes (id int8 NOT NULL, nome VARCHAR(255), data_nascimento DATE, telefone VARCHAR(255), email VARCHAR(255), envia_email BOOLEAN, renda_media float8, PRIMARY KEY (id));
