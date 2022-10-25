@@ -8,6 +8,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.beans.BeanUtils;
+
+import com.ufopa.spring.dto.MapperCliente;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,5 +34,10 @@ public class Cliente {
   private String email;
   private Boolean enviaEmail;
   private Double rendaMedia;
+
+  public MapperCliente toDto(MapperCliente dto) {
+    BeanUtils.copyProperties(this, dto);
+    return dto;
+  }
 
 }
