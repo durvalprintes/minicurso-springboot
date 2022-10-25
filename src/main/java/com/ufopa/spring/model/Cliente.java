@@ -10,7 +10,7 @@ import javax.persistence.Table;
 
 import org.springframework.beans.BeanUtils;
 
-import com.ufopa.spring.dto.MapperCliente;
+import com.ufopa.spring.mapper.ClienteMapper;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,9 +35,15 @@ public class Cliente {
   private Boolean enviaEmail;
   private Double rendaMedia;
 
-  public MapperCliente toDto(MapperCliente dto) {
-    BeanUtils.copyProperties(this, dto);
-    return dto;
+  public ClienteMapper toDto(Class<? extends ClienteMapper> dtoClass) {
+    try {
+      ClienteMapper dto = dtoClass.getDeclaredConstructor().newInstance();
+      BeanUtils.copyProperties(this, dto);
+      return dto;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
   }
 
 }
