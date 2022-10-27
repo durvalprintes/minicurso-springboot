@@ -3,6 +3,8 @@ package com.ufopa.spring.controller;
 import java.util.List;
 import java.util.UUID;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,12 +38,12 @@ public class ClienteController {
   }
 
   @PostMapping
-  ResponseEntity<Object> inserirCliente(@RequestBody ClienteDetalheDto cliente) {
+  ResponseEntity<Object> inserirCliente(@RequestBody @Valid ClienteDetalheDto cliente) {
     return clienteService.saveCliente(cliente);
   }
 
   @PutMapping(value = "/{id}")
-  ResponseEntity<Object> alterarCliente(@PathVariable("id") UUID id, @RequestBody ClienteDetalheDto cliente) {
+  ResponseEntity<Object> alterarCliente(@PathVariable("id") UUID id, @RequestBody @Valid ClienteDetalheDto cliente) {
     return clienteService.updateCliente(id, cliente);
   }
 
