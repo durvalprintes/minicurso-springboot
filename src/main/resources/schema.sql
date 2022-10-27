@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS minicurso.clientes (
   email VARCHAR(255) NOT NULL, 
   envia_email BOOLEAN DEFAULT TRUE, 
   renda_media float8 DEFAULT 0, 
+  created_date timestamp,
+  modified_date timestamp,
   PRIMARY KEY (id),
   CONSTRAINT unique_telefone UNIQUE (telefone),
   CONSTRAINT unique_email UNIQUE (email));
