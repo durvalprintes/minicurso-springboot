@@ -1,2 +1,7 @@
-INSERT INTO minicurso.clientes(id, nome, data_nascimento, telefone, email, envia_email, renda_media) VALUES (1, 'FULANO DA SILVA', '1990-01-01', '91912345678', 'fulano@gmail.com', false, '3000') ON CONFLICT DO NOTHING;
-INSERT INTO minicurso.clientes(id, nome, data_nascimento, telefone, email, envia_email, renda_media) VALUES (2, 'CICLANO SOUSA', '1990-01-01', '91912345678', 'ciclano@hotmail.com', true, '5500') ON CONFLICT DO NOTHING;
+INSERT INTO minicurso.clientes(id, nome, data_nascimento, telefone, email, envia_email, renda_media) 
+VALUES ('ad2e8ea9-08e7-4de8-9b4e-594734fd0857', 'FULANO DA SILVA',  '1994-05-23', '91912345678', 'FULANO.SILVA@GMAIL.COM', false, '3500') 
+    ON CONFLICT DO NOTHING;
+
+INSERT INTO minicurso.clientes(id, nome, data_nascimento, telefone, email, envia_email, renda_media) 
+VALUES ('264d198d-60a9-48da-b4fd-f278d3a881d0' , 'CICLANO DE SOUSA', '1985-10-13', '92987654321', 'CICLANO_SZ@HOTMAIL.COM', true, '10600') 
+    ON CONFLICT DO NOTHING;

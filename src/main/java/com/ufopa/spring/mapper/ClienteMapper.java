@@ -13,7 +13,7 @@ public interface ClienteMapper {
 
   default Cliente toModel() {
     Cliente cliente = new Cliente();
-    BeanUtils.copyProperties(this, cliente);
+    BeanUtils.copyProperties(this, cliente, getNullPropertyNames(this));
     return cliente;
   }
 

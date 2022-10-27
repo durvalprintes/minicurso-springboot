@@ -1,5 +1,7 @@
 package com.ufopa.spring.dto;
 
+import java.util.UUID;
+
 import com.ufopa.spring.mapper.ClienteMapper;
 
 import lombok.AllArgsConstructor;
@@ -13,8 +15,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ClienteResumoDto implements ClienteMapper {
 
+  private UUID id;
   private String nome;
-  private String telefone;
   private String email;
 
 }

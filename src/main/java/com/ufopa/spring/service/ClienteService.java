@@ -2,6 +2,7 @@ package com.ufopa.spring.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -29,7 +30,7 @@ public class ClienteService {
             .ok(clientes.stream().map(cliente -> cliente.toDto(ClienteResumoDto.class)).collect(Collectors.toList()));
   }
 
-  public ResponseEntity<ClienteMapper> getCliente(Long id) {
+  public ResponseEntity<ClienteMapper> getCliente(UUID id) {
     Optional<Cliente> cliente = clienteRepository.findById(id);
     return cliente.isPresent() ? ResponseEntity.ok(cliente.get().toDto(ClienteDetalheDto.class))
         : ResponseEntity.notFound().build();
@@ -43,14 +44,14 @@ public class ClienteService {
         .toUri()).build();
   }
 
-  public ResponseEntity<Object> updateCliente(Long id, ClienteDetalheDto dto) {
+  public ResponseEntity<Object> updateCliente(UUID id, ClienteDetalheDto dto) {
     AtomicBoolean sucesso = new AtomicBoolean(true);
     clienteRepository.findById(id).ifPresentOrElse(cliente -> clienteRepository.save(dto.toModel(cliente)),
         () -> sucesso.set(false));
     return sucesso.get() ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
   }
 
-  public ResponseEntity<Object> deleteCliente(Long id) {
+  public ResponseEntity<Object> deleteCliente(UUID id) {
     AtomicBoolean sucesso = new AtomicBoolean(true);
     clienteRepository.findById(id).ifPresentOrElse(cliente -> clienteRepository.delete(cliente),
         () -> sucesso.set(false));

@@ -1,6 +1,7 @@
 package com.ufopa.spring.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class ClienteController {
   }
 
   @GetMapping(value = "/{id}")
-  ResponseEntity<ClienteMapper> listarCliente(@PathVariable("id") Long id) {
+  ResponseEntity<ClienteMapper> listarCliente(@PathVariable("id") UUID id) {
     return clienteService.getCliente(id);
   }
 
@@ -40,12 +41,12 @@ public class ClienteController {
   }
 
   @PutMapping(value = "/{id}")
-  ResponseEntity<Object> alterarCliente(@PathVariable("id") Long id, @RequestBody ClienteDetalheDto cliente) {
+  ResponseEntity<Object> alterarCliente(@PathVariable("id") UUID id, @RequestBody ClienteDetalheDto cliente) {
     return clienteService.updateCliente(id, cliente);
   }
 
   @DeleteMapping(value = "/{id}")
-  ResponseEntity<Object> excluirCliente(@PathVariable("id") Long id) {
+  ResponseEntity<Object> excluirCliente(@PathVariable("id") UUID id) {
     return clienteService.deleteCliente(id);
   }
 

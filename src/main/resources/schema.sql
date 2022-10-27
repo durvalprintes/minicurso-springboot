@@ -1,2 +1,12 @@
 CREATE SCHEMA IF NOT EXISTS minicurso;
-CREATE TABLE IF NOT EXISTS minicurso.clientes (id int8 NOT NULL, nome VARCHAR(255), data_nascimento DATE, telefone VARCHAR(255), email VARCHAR(255), envia_email BOOLEAN, renda_media float8, PRIMARY KEY (id));
+CREATE TABLE IF NOT EXISTS minicurso.clientes (
+  id UUID NOT NULL,
+  nome VARCHAR(255) NOT NULL, 
+  data_nascimento DATE NOT NULL, 
+  telefone VARCHAR(11) NOT NULL, 
+  email VARCHAR(255) NOT NULL, 
+  envia_email BOOLEAN DEFAULT TRUE, 
+  renda_media float8 DEFAULT 0, 
+  PRIMARY KEY (id),
+  CONSTRAINT unique_telefone UNIQUE (telefone),
+  CONSTRAINT unique_email UNIQUE (email));
