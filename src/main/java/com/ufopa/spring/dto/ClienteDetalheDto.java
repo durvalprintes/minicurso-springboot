@@ -22,17 +22,17 @@ import lombok.Setter;
 public class ClienteDetalheDto implements ClienteMapper {
 
   @NotNull
-  @Pattern(regexp = "[A-Z ]+")
+  @Pattern(regexp = "[A-Z ]+", message = "somente letras maiúsculas e espaços")
   private String nome;
   @NotNull
   @DateTimeFormat(pattern = "yyyy-MM-dd")
   private LocalDate dataNascimento;
   @NotNull
-  @Pattern(regexp = "\\d{11}")
+  @Pattern(regexp = "\\d{11}", message = "somente números e com 11 dígitos")
   private String telefone;
   @NotNull
   @Email
-  @Pattern(regexp = "[^a-z]+")
+  @Pattern(regexp = "[^a-z]+", message = "não deve conter letras minúsculas")
   private String email;
   private Boolean enviaEmail;
   private Double rendaMedia;
