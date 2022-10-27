@@ -9,6 +9,8 @@ import javax.validation.constraints.Pattern;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.ufopa.spring.mapper.ClienteMapper;
+import com.ufopa.spring.validation.OnInsert;
+import com.ufopa.spring.validation.OnUpdate;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,18 +23,21 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ClienteDetalheDto implements ClienteMapper {
 
-  @NotNull
-  @Pattern(regexp = "[A-Z ]+", message = "somente letras maiúsculas e espaços")
+  @NotNull(groups = OnInsert.class)
+  @Pattern(regexp = "[A-Z ]+", message = "somente letras maiúsculas e espaços", groups = { OnInsert.class,
+      OnUpdate.class })
   private String nome;
-  @NotNull
+  @NotNull(groups = OnInsert.class)
   @DateTimeFormat(pattern = "yyyy-MM-dd")
   private LocalDate dataNascimento;
-  @NotNull
-  @Pattern(regexp = "\\d{11}", message = "somente números e com 11 dígitos")
+  @NotNull(groups = OnInsert.class)
+  @Pattern(regexp = "\\d{11}", message = "somente números e com 11 dígitos", groups = { OnInsert.class,
+      OnUpdate.class })
   private String telefone;
-  @NotNull
-  @Email
-  @Pattern(regexp = "[^a-z]+", message = "não deve conter letras minúsculas")
+  @NotNull(groups = OnInsert.class)
+  @Email(groups = { OnInsert.class, OnUpdate.class })
+  @Pattern(regexp = "[^a-z]+", message = "não deve conter letras minúsculas", groups = { OnInsert.class,
+      OnUpdate.class })
   private String email;
   private Boolean enviaEmail;
   private Double rendaMedia;
