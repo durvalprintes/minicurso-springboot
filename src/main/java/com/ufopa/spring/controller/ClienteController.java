@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,9 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ufopa.spring.dto.ClienteDetalheDto;
+import com.ufopa.spring.dto.ClienteResumoDto;
 import com.ufopa.spring.mapper.ClienteMapper;
 import com.ufopa.spring.service.ClienteService;
 import com.ufopa.spring.validation.OnInsert;
@@ -52,6 +56,18 @@ public class ClienteController {
   @DeleteMapping(value = "/{id}")
   ResponseEntity<Object> excluirCliente(@PathVariable("id") UUID id) {
     return clienteService.deleteCliente(id);
+  }
+
+  @GetMapping(value = "/busca/1")
+  ResponseEntity<Page<ClienteMapper>> buscarClientesPorNome(@RequestParam(required = true) String nome,
+      Pageable pageable) {
+    return clienteService.findByNome(nome, pageable);
+  }
+
+  @GetMapping(value = "/busca/2")
+  ResponseEntity<Page<ClienteResumoDto>> buscarClientesPorEmail(@RequestParam(required = true) String email,
+      Pageable pageable) {
+    return clienteService.findByEmail(email, pageable);
   }
 
 }

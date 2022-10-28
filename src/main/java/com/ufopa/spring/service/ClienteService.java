@@ -7,6 +7,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -56,6 +59,18 @@ public class ClienteService {
     clienteRepository.findById(id).ifPresentOrElse(cliente -> clienteRepository.delete(cliente),
         () -> sucesso.set(false));
     return sucesso.get() ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+  }
+
+  public ResponseEntity<Page<ClienteMapper>> findByNome(String nome, Pageable pageable) {
+    Page<Cliente> clientes = clienteRepository.findByNomeContainsIgnoreCaseOrderByNome(nome, pageable);
+    return ResponseEntity
+        .ok(new PageImpl<>(
+            clientes.stream().map(cliente -> cliente.toDto(ClienteResumoDto.class)).collect(Collectors.toList()),
+            pageable, clientes.getTotalPages()));
+  }
+
+  public ResponseEntity<Page<ClienteResumoDto>> findByEmail(String email, Pageable pageable) {
+    return ResponseEntity.ok(clienteRepository.findClienteResumoByEmail(email, pageable));
   }
 
 }
