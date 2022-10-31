@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ufopa.spring.dto.ClienteDetalheDto;
 import com.ufopa.spring.dto.ClienteResumoDto;
+import com.ufopa.spring.exception.ResourceNotFoundException;
 import com.ufopa.spring.mapper.ClienteMapper;
 import com.ufopa.spring.service.ClienteService;
 import com.ufopa.spring.validation.OnInsert;
@@ -38,7 +39,7 @@ public class ClienteController {
   }
 
   @GetMapping(value = "/{id}")
-  ResponseEntity<ClienteMapper> listarCliente(@PathVariable("id") UUID id) {
+  ResponseEntity<ClienteMapper> listarCliente(@PathVariable("id") UUID id) throws ResourceNotFoundException {
     return clienteService.getCliente(id);
   }
 
@@ -49,12 +50,12 @@ public class ClienteController {
 
   @PutMapping(value = "/{id}")
   ResponseEntity<Object> alterarCliente(@PathVariable("id") UUID id,
-      @RequestBody @Validated(OnUpdate.class) ClienteDetalheDto cliente) {
+      @RequestBody @Validated(OnUpdate.class) ClienteDetalheDto cliente) throws ResourceNotFoundException {
     return clienteService.updateCliente(id, cliente);
   }
 
   @DeleteMapping(value = "/{id}")
-  ResponseEntity<Object> excluirCliente(@PathVariable("id") UUID id) {
+  ResponseEntity<Object> excluirCliente(@PathVariable("id") UUID id) throws ResourceNotFoundException {
     return clienteService.deleteCliente(id);
   }
 

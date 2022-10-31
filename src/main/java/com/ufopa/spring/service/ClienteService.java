@@ -16,6 +16,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.ufopa.spring.dto.ClienteDetalheDto;
 import com.ufopa.spring.dto.ClienteResumoDto;
+import com.ufopa.spring.exception.ResourceNotFoundException;
 import com.ufopa.spring.mapper.ClienteMapper;
 import com.ufopa.spring.model.Cliente;
 import com.ufopa.spring.repository.ClienteRepository;
@@ -33,10 +34,9 @@ public class ClienteService {
             .ok(clientes.stream().map(cliente -> cliente.toDto(ClienteResumoDto.class)).collect(Collectors.toList()));
   }
 
-  public ResponseEntity<ClienteMapper> getCliente(UUID id) {
-    Optional<Cliente> cliente = clienteRepository.findById(id);
-    return cliente.isPresent() ? ResponseEntity.ok(cliente.get().toDto(ClienteDetalheDto.class))
-        : ResponseEntity.notFound().build();
+  public ResponseEntity<ClienteMapper> getCliente(UUID id) throws ResourceNotFoundException {
+    Cliente cliente = clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    return ResponseEntity.ok(cliente.toDto(ClienteDetalheDto.class));
   }
 
   public ResponseEntity<Object> saveCliente(ClienteDetalheDto dto) {
@@ -47,18 +47,16 @@ public class ClienteService {
         .toUri()).build();
   }
 
-  public ResponseEntity<Object> updateCliente(UUID id, ClienteDetalheDto dto) {
-    AtomicBoolean sucesso = new AtomicBoolean(true);
-    clienteRepository.findById(id).ifPresentOrElse(cliente -> clienteRepository.save(dto.toModel(cliente)),
-        () -> sucesso.set(false));
-    return sucesso.get() ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+  public ResponseEntity<Object> updateCliente(UUID id, ClienteDetalheDto dto) throws ResourceNotFoundException {
+    Cliente cliente = clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    clienteRepository.save(dto.toModel(cliente));
+    return ResponseEntity.noContent().build();
   }
 
-  public ResponseEntity<Object> deleteCliente(UUID id) {
-    AtomicBoolean sucesso = new AtomicBoolean(true);
-    clienteRepository.findById(id).ifPresentOrElse(cliente -> clienteRepository.delete(cliente),
-        () -> sucesso.set(false));
-    return sucesso.get() ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+  public ResponseEntity<Object> deleteCliente(UUID id) throws ResourceNotFoundException {
+    Cliente cliente = clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    clienteRepository.delete(cliente);
+    return ResponseEntity.noContent().build();
   }
 
   public ResponseEntity<Page<ClienteMapper>> findByNome(String nome, Pageable pageable) {

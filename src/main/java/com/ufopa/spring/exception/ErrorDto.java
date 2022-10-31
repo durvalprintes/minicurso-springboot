@@ -19,7 +19,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ErrorDto {
 
-  private LocalDateTime data;
+  @Builder.Default
+  private LocalDateTime data = LocalDateTime.now();
   private int status;
   private String descricao;
   @JsonInclude(Include.NON_NULL)
