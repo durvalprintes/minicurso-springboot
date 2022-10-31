@@ -12,12 +12,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import com.ufopa.spring.mapper.ClienteMapper;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,22 +42,11 @@ public class Cliente {
   private String telefone;
   @Column(nullable = false, unique = true)
   private String email;
-  private Boolean enviaEmail = false;
-  private Double rendaMedia = 0D;
+  private Boolean enviaEmail;
+  private Double rendaMedia;
   @CreatedDate
   private LocalDateTime createdDate;
   @LastModifiedDate
   private LocalDateTime modifiedDate;
-
-  public ClienteMapper toDto(Class<? extends ClienteMapper> dtoClass) {
-    try {
-      ClienteMapper dto = dtoClass.getDeclaredConstructor().newInstance();
-      BeanUtils.copyProperties(this, dto);
-      return dto;
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return null;
-  }
 
 }

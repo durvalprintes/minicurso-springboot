@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ufopa.spring.dto.ClienteDetalheDto;
 import com.ufopa.spring.dto.ClienteResumoDto;
 import com.ufopa.spring.exception.ResourceNotFoundException;
-import com.ufopa.spring.mapper.ClienteMapper;
 import com.ufopa.spring.service.ClienteService;
 import com.ufopa.spring.validation.OnInsert;
 import com.ufopa.spring.validation.OnUpdate;
@@ -34,12 +33,12 @@ public class ClienteController {
   ClienteService clienteService;
 
   @GetMapping
-  ResponseEntity<List<ClienteMapper>> listarClientes() {
+  ResponseEntity<List<ClienteResumoDto>> listarClientes() {
     return clienteService.getClientes();
   }
 
   @GetMapping(value = "/{id}")
-  ResponseEntity<ClienteMapper> listarCliente(@PathVariable("id") UUID id) throws ResourceNotFoundException {
+  ResponseEntity<ClienteDetalheDto> listarCliente(@PathVariable("id") UUID id) throws ResourceNotFoundException {
     return clienteService.getCliente(id);
   }
 
@@ -60,7 +59,7 @@ public class ClienteController {
   }
 
   @GetMapping(value = "/busca/1")
-  ResponseEntity<Page<ClienteMapper>> buscarClientesPorNome(@RequestParam(required = true) String nome,
+  ResponseEntity<Page<ClienteResumoDto>> buscarClientesPorNome(@RequestParam(required = true) String nome,
       Pageable pageable) {
     return clienteService.findByNome(nome, pageable);
   }

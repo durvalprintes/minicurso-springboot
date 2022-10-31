@@ -1,9 +1,7 @@
 package com.ufopa.spring.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,29 +25,29 @@ public class ClienteService {
   @Autowired
   ClienteRepository clienteRepository;
 
-  public ResponseEntity<List<ClienteMapper>> getClientes() {
+  public ResponseEntity<List<ClienteResumoDto>> getClientes() {
     List<Cliente> clientes = clienteRepository.findAll();
     return clientes.isEmpty() ? ResponseEntity.noContent().build()
         : ResponseEntity
-            .ok(clientes.stream().map(cliente -> cliente.toDto(ClienteResumoDto.class)).collect(Collectors.toList()));
+            .ok(clientes.stream().map(ClienteMapper.INSTANCE::clienteToResumoDto).collect(Collectors.toList()));
   }
 
-  public ResponseEntity<ClienteMapper> getCliente(UUID id) throws ResourceNotFoundException {
-    Cliente cliente = clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
-    return ResponseEntity.ok(cliente.toDto(ClienteDetalheDto.class));
+  public ResponseEntity<ClienteDetalheDto> getCliente(UUID id) throws ResourceNotFoundException {
+    return ResponseEntity.ok(ClienteMapper.INSTANCE
+        .clienteToDetalheDto(clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new)));
   }
 
   public ResponseEntity<Object> saveCliente(ClienteDetalheDto dto) {
     return ResponseEntity.created(ServletUriComponentsBuilder
         .fromCurrentRequest()
         .path("/{id}")
-        .buildAndExpand(clienteRepository.save(dto.toModel()).getId())
+        .buildAndExpand(clienteRepository.save(ClienteMapper.INSTANCE.clienteFromDto(dto)).getId())
         .toUri()).build();
   }
 
   public ResponseEntity<Object> updateCliente(UUID id, ClienteDetalheDto dto) throws ResourceNotFoundException {
-    Cliente cliente = clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
-    clienteRepository.save(dto.toModel(cliente));
+    clienteRepository.save(ClienteMapper.INSTANCE.clienteFromDto(dto,
+        clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new)));
     return ResponseEntity.noContent().build();
   }
 
@@ -59,11 +57,10 @@ public class ClienteService {
     return ResponseEntity.noContent().build();
   }
 
-  public ResponseEntity<Page<ClienteMapper>> findByNome(String nome, Pageable pageable) {
+  public ResponseEntity<Page<ClienteResumoDto>> findByNome(String nome, Pageable pageable) {
     Page<Cliente> clientes = clienteRepository.findByNomeContainsIgnoreCaseOrderByNome(nome, pageable);
-    return ResponseEntity
-        .ok(new PageImpl<>(
-            clientes.stream().map(cliente -> cliente.toDto(ClienteResumoDto.class)).collect(Collectors.toList()),
+    return ResponseEntity.ok(
+        new PageImpl<>(clientes.stream().map(ClienteMapper.INSTANCE::clienteToResumoDto).collect(Collectors.toList()),
             pageable, clientes.getTotalPages()));
   }
 

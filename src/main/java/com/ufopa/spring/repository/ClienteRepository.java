@@ -17,4 +17,6 @@ public interface ClienteRepository extends JpaRepository<Cliente, UUID> {
   @Query(value = "SELECT new com.ufopa.spring.dto.ClienteResumoDto(c.id, c.nome, c.email) FROM Cliente c WHERE UPPER(c.email) LIKE UPPER(CONCAT('%', ?1, '%'))")
   public Page<ClienteResumoDto> findClienteResumoByEmail(String email, Pageable pageable);
 
+  public boolean existsByEmailOrTelefoneAllIgnoreCase(String email, String telefone);
+
 }

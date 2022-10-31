@@ -1,33 +1,28 @@
 package com.ufopa.spring.mapper;
 
-import java.beans.FeatureDescriptor;
-import java.util.stream.Stream;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ReportingPolicy;
+import org.mapstruct.factory.Mappers;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
-
+import com.ufopa.spring.dto.ClienteDetalheDto;
+import com.ufopa.spring.dto.ClienteResumoDto;
 import com.ufopa.spring.model.Cliente;
 
+@Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ClienteMapper {
 
-  default Cliente toModel() {
-    Cliente cliente = new Cliente();
-    BeanUtils.copyProperties(this, cliente, getNullPropertyNames(this));
-    return cliente;
-  }
+  ClienteMapper INSTANCE = Mappers.getMapper(ClienteMapper.class);
 
-  default Cliente toModel(Cliente cliente) {
-    BeanUtils.copyProperties(this, cliente, getNullPropertyNames(this));
-    return cliente;
-  }
+  ClienteResumoDto clienteToResumoDto(Cliente cliente);
 
-  static String[] getNullPropertyNames(Object source) {
-    final BeanWrapper wrappedSource = new BeanWrapperImpl(source);
-    return Stream.of(wrappedSource.getPropertyDescriptors())
-        .map(FeatureDescriptor::getName)
-        .filter(propertyName -> wrappedSource.getPropertyValue(propertyName) == null)
-        .toArray(String[]::new);
-  }
+  ClienteDetalheDto clienteToDetalheDto(Cliente cliente);
 
+  @Mapping(source = "enviaEmail", target = "enviaEmail", defaultValue = "false")
+  @Mapping(source = "rendaMedia", target = "rendaMedia", defaultValue = "0")
+  Cliente clienteFromDto(ClienteDetalheDto cliente);
+
+  Cliente clienteFromDto(ClienteDetalheDto detalheDto, @MappingTarget Cliente cliente);
 }
