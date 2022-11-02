@@ -6,4 +6,8 @@ public class ResourceNotFoundException extends Exception {
     super();
   }
 
+  public ResourceNotFoundException(String mensagem) {
+    super(mensagem);
+  }
+
 }

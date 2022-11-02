@@ -18,10 +18,8 @@ public class DataNascimentoValidator implements ConstraintValidator<DataNascimen
 
   @Override
   public boolean isValid(String dataNascimento, ConstraintValidatorContext context) {
-    if (dataNascimento == null)
-      return true;
     try {
-      return periodoValido(dataNascimento);
+      return dataNascimento == null || periodoValido(dataNascimento);
     } catch (Exception e) {
       return false;
     }

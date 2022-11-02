@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ufopa.spring.dto.ClienteDetalheDto;
 import com.ufopa.spring.dto.ClienteResumoDto;
 import com.ufopa.spring.exception.ResourceNotFoundException;
+import com.ufopa.spring.exception.SearchException;
 import com.ufopa.spring.service.ClienteService;
 import com.ufopa.spring.validation.OnInsert;
 import com.ufopa.spring.validation.OnUpdate;
@@ -58,16 +59,10 @@ public class ClienteController {
     return clienteService.deleteCliente(id);
   }
 
-  @GetMapping(value = "/busca/1")
-  ResponseEntity<Page<ClienteResumoDto>> buscarClientesPorNome(@RequestParam(required = true) String nome,
-      Pageable pageable) {
-    return clienteService.findByNome(nome, pageable);
-  }
-
-  @GetMapping(value = "/busca/2")
-  ResponseEntity<Page<ClienteResumoDto>> buscarClientesPorEmail(@RequestParam(required = true) String email,
-      Pageable pageable) {
-    return clienteService.findByEmail(email, pageable);
+  @GetMapping(value = "/busca")
+  ResponseEntity<Page<ClienteResumoDto>> buscarClientes(@RequestParam(required = false, defaultValue = "") String nome,
+      @RequestParam(required = false, defaultValue = "") String email, Pageable pageable) throws SearchException {
+    return clienteService.getClientes(nome, email, pageable);
   }
 
 }

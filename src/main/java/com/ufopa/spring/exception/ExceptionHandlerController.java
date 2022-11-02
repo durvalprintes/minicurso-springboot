@@ -1,5 +1,6 @@
 package com.ufopa.spring.exception;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,13 +53,23 @@ public class ExceptionHandlerController {
         .build();
   }
 
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(SearchException.class)
+  public ErrorDto handlerSearchException(SearchException exception, HttpServletRequest request) {
+    return ErrorDto
+        .builder()
+        .status(HttpStatus.BAD_REQUEST.value())
+        .descricao(exception.getMessage())
+        .build();
+  }
+
   @ResponseStatus(HttpStatus.NOT_FOUND)
   @ExceptionHandler(ResourceNotFoundException.class)
   public ErrorDto handlerResourceNotFoundException(ResourceNotFoundException exception, HttpServletRequest request) {
     return ErrorDto
         .builder()
         .status(HttpStatus.NOT_FOUND.value())
-        .descricao("Cliente não encontrado")
+        .descricao(Optional.ofNullable(exception.getMessage()).orElse("Cliente não encontrado"))
         .build();
   }
 

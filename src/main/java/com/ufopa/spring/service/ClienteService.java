@@ -15,9 +15,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.ufopa.spring.dto.ClienteDetalheDto;
 import com.ufopa.spring.dto.ClienteResumoDto;
 import com.ufopa.spring.exception.ResourceNotFoundException;
+import com.ufopa.spring.exception.SearchException;
 import com.ufopa.spring.mapper.ClienteMapper;
 import com.ufopa.spring.model.Cliente;
 import com.ufopa.spring.repository.ClienteRepository;
+import com.ufopa.spring.specification.ClienteSpecs;
 
 @Service
 public class ClienteService {
@@ -57,15 +59,21 @@ public class ClienteService {
     return ResponseEntity.noContent().build();
   }
 
-  public ResponseEntity<Page<ClienteResumoDto>> findByNome(String nome, Pageable pageable) {
-    Page<Cliente> clientes = clienteRepository.findByNomeContainsIgnoreCaseOrderByNome(nome, pageable);
-    return ResponseEntity.ok(
-        new PageImpl<>(clientes.stream().map(ClienteMapper.INSTANCE::clienteToResumoDto).collect(Collectors.toList()),
-            pageable, clientes.getTotalPages()));
-  }
+  public ResponseEntity<Page<ClienteResumoDto>> getClientes(String nome, String email, Pageable pageable)
+      throws SearchException {
+    if (!nome.isEmpty()) {
+      Page<Cliente> clientes = !email.isEmpty()
+          ? clienteRepository.findAll(ClienteSpecs.getClientesByContainNomeAndEmail(nome, email), pageable)
+          : clienteRepository.findByNomeContainsIgnoreCaseOrderByNome(nome, pageable);
 
-  public ResponseEntity<Page<ClienteResumoDto>> findByEmail(String email, Pageable pageable) {
-    return ResponseEntity.ok(clienteRepository.findClienteResumoByEmail(email, pageable));
+      return ResponseEntity.ok(new PageImpl<>(
+          clientes.stream().map(ClienteMapper.INSTANCE::clienteToResumoDto).collect(Collectors.toList()), pageable,
+          clientes.getTotalPages()));
+    }
+    if (!email.isEmpty()) {
+      return ResponseEntity.ok(clienteRepository.findClienteResumoByEmail(email, pageable));
+    }
+    throw new SearchException("Nenhum parâmetro de busca encontrado");
   }
 
 }

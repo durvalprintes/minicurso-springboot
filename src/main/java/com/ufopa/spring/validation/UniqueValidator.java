@@ -19,7 +19,10 @@ public class UniqueValidator implements ConstraintValidator<Unique, String> {
 
   @Override
   public boolean isValid(String campo, ConstraintValidatorContext context) {
-    return campo == null || !repository.existsByEmailOrTelefoneAllIgnoreCase(campo, campo);
+    return campo == null ||
+        (campo.matches("\\d+")
+            ? !repository.existsByTelefone(campo)
+            : !repository.existsByEmailIgnoreCase(campo));
   }
 
 }
