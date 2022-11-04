@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.ufopa.spring.dto.ClienteDetalheDto;
 import com.ufopa.spring.dto.ClienteResumoDto;
@@ -27,51 +25,43 @@ public class ClienteService {
   @Autowired
   ClienteRepository clienteRepository;
 
-  public ResponseEntity<List<ClienteResumoDto>> getClientes() {
-    List<Cliente> clientes = clienteRepository.findAll();
-    return clientes.isEmpty() ? ResponseEntity.noContent().build()
-        : ResponseEntity
-            .ok(clientes.stream().map(ClienteMapper.INSTANCE::clienteToResumoDto).collect(Collectors.toList()));
+  public List<ClienteResumoDto> getClientes() {
+    return clienteRepository.findAll().stream()
+        .map(ClienteMapper.INSTANCE::clienteToResumoDto)
+        .collect(Collectors.toList());
   }
 
-  public ResponseEntity<ClienteDetalheDto> getCliente(UUID id) throws ResourceNotFoundException {
-    return ResponseEntity.ok(ClienteMapper.INSTANCE
-        .clienteToDetalheDto(clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new)));
+  public ClienteDetalheDto getCliente(UUID id) throws ResourceNotFoundException {
+    return ClienteMapper.INSTANCE
+        .clienteToDetalheDto(clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new));
   }
 
-  public ResponseEntity<Object> saveCliente(ClienteDetalheDto dto) {
-    return ResponseEntity.created(ServletUriComponentsBuilder
-        .fromCurrentRequest()
-        .path("/{id}")
-        .buildAndExpand(clienteRepository.save(ClienteMapper.INSTANCE.clienteFromDto(dto)).getId())
-        .toUri()).build();
+  public UUID saveCliente(ClienteDetalheDto dto) {
+    return clienteRepository.save(ClienteMapper.INSTANCE.clienteFromDto(dto)).getId();
   }
 
-  public ResponseEntity<Object> updateCliente(UUID id, ClienteDetalheDto dto) throws ResourceNotFoundException {
+  public void updateCliente(UUID id, ClienteDetalheDto dto) throws ResourceNotFoundException {
     clienteRepository.save(ClienteMapper.INSTANCE.clienteFromDto(dto,
         clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new)));
-    return ResponseEntity.noContent().build();
   }
 
-  public ResponseEntity<Object> deleteCliente(UUID id) throws ResourceNotFoundException {
-    Cliente cliente = clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
-    clienteRepository.delete(cliente);
-    return ResponseEntity.noContent().build();
+  public void deleteCliente(UUID id) throws ResourceNotFoundException {
+    clienteRepository.delete(clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new));
   }
 
-  public ResponseEntity<Page<ClienteResumoDto>> getClientes(String nome, String email, Pageable pageable)
+  public Page<ClienteResumoDto> getClientes(String nome, String email, Pageable pageable)
       throws SearchException {
     if (!nome.isEmpty()) {
       Page<Cliente> clientes = !email.isEmpty()
           ? clienteRepository.findAll(ClienteSpecs.getClientesByContainNomeAndEmail(nome, email), pageable)
           : clienteRepository.findByNomeContainsIgnoreCaseOrderByNome(nome, pageable);
 
-      return ResponseEntity.ok(new PageImpl<>(
+      return new PageImpl<>(
           clientes.stream().map(ClienteMapper.INSTANCE::clienteToResumoDto).collect(Collectors.toList()), pageable,
-          clientes.getTotalPages()));
+          clientes.getTotalPages());
     }
     if (!email.isEmpty()) {
-      return ResponseEntity.ok(clienteRepository.findClienteResumoByEmail(email, pageable));
+      return clienteRepository.findClienteResumoByEmail(email, pageable);
     }
     throw new SearchException("Nenhum parâmetro de busca encontrado");
   }
