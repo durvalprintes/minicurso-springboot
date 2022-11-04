@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "home.hello",
+      "type": "java.lang.String",
+      "description": "Mensagem exibida na Home, quando sem usuário autenticado"
+    }
+  ]
+}
