@@ -17,6 +17,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,6 +26,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "clientes")
 @EntityListeners(AuditingEntityListener.class)
@@ -42,10 +44,16 @@ public class Cliente {
   private String telefone;
   @Column(nullable = false, unique = true)
   private String email;
-  private Boolean enviaEmail;
-  private Double rendaMedia;
+  @Builder.Default
+  @Column(columnDefinition = "bool not null default false")
+  private Boolean enviaEmail = false;
+  @Builder.Default
+  @Column(columnDefinition = "float8 not null default 0")
+  private Double rendaMedia = 0D;
+  @Column(nullable = false)
   @CreatedDate
   private LocalDateTime createdDate;
+  @Column(nullable = false)
   @LastModifiedDate
   private LocalDateTime modifiedDate;
 
