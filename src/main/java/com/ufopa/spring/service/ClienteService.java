@@ -69,4 +69,10 @@ public class ClienteService {
     throw new SearchException("Nenhum parâmetro de busca encontrado");
   }
 
+  public boolean isUnique(String campo) {
+    return (campo.matches("\\d+")
+        ? !repository.existsByTelefone(campo)
+        : !repository.existsByEmailIgnoreCase(campo));
+  }
+
 }

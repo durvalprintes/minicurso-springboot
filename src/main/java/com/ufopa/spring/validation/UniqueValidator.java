@@ -5,12 +5,12 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.ufopa.spring.repository.ClienteRepository;
+import com.ufopa.spring.service.ClienteService;
 
 public class UniqueValidator implements ConstraintValidator<Unique, String> {
 
   @Autowired
-  private ClienteRepository repository;
+  private ClienteService service;
 
   @Override
   public void initialize(Unique unique) {
@@ -19,10 +19,8 @@ public class UniqueValidator implements ConstraintValidator<Unique, String> {
 
   @Override
   public boolean isValid(String campo, ConstraintValidatorContext context) {
-    return campo == null ||
-        (campo.matches("\\d+")
-            ? !repository.existsByTelefone(campo)
-            : !repository.existsByEmailIgnoreCase(campo));
+    return campo == null || service.isUnique(campo);
+
   }
 
 }
