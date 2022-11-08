@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.ufopa.spring.dto.ClienteDetalheDto;
+import com.ufopa.spring.dto.ClienteInputDto;
 import com.ufopa.spring.dto.ClienteResumoDto;
 import com.ufopa.spring.exception.ResourceNotFoundException;
 import com.ufopa.spring.exception.SearchException;
@@ -46,7 +47,7 @@ public class ClienteController {
   }
 
   @PostMapping
-  ResponseEntity<Object> inserirCliente(@RequestBody @Validated(OnInsert.class) ClienteDetalheDto cliente) {
+  ResponseEntity<Object> inserirCliente(@RequestBody @Validated(OnInsert.class) ClienteInputDto cliente) {
     return ResponseEntity.created(ServletUriComponentsBuilder
         .fromCurrentRequest()
         .path("/{id}")
@@ -56,7 +57,7 @@ public class ClienteController {
 
   @PutMapping(value = "/{id}")
   ResponseEntity<Object> alterarCliente(@PathVariable("id") UUID id,
-      @RequestBody @Validated(OnUpdate.class) ClienteDetalheDto cliente) throws ResourceNotFoundException {
+      @RequestBody @Validated(OnUpdate.class) ClienteInputDto cliente) throws ResourceNotFoundException {
     clienteService.updateCliente(id, cliente);
     return ResponseEntity.noContent().build();
   }

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.ufopa.spring.dto.ClienteDetalheDto;
+import com.ufopa.spring.dto.ClienteInputDto;
 import com.ufopa.spring.dto.ClienteResumoDto;
 import com.ufopa.spring.exception.ResourceNotFoundException;
 import com.ufopa.spring.exception.SearchException;
@@ -23,45 +24,47 @@ import com.ufopa.spring.specification.ClienteSpecs;
 public class ClienteService {
 
   @Autowired
-  ClienteRepository clienteRepository;
+  ClienteRepository repository;
+
+  @Autowired
+  ClienteMapper mapper;
 
   public List<ClienteResumoDto> getClientes() {
-    return clienteRepository.findAll().stream()
-        .map(ClienteMapper.INSTANCE::clienteToResumoDto)
+    return repository.findAll().stream()
+        .map(mapper::clienteToResumoDto)
         .collect(Collectors.toList());
   }
 
   public ClienteDetalheDto getCliente(UUID id) throws ResourceNotFoundException {
-    return ClienteMapper.INSTANCE
-        .clienteToDetalheDto(clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new));
+    return mapper.clienteToDetalheDto(repository.findById(id).orElseThrow(ResourceNotFoundException::new));
   }
 
-  public UUID saveCliente(ClienteDetalheDto dto) {
-    return clienteRepository.save(ClienteMapper.INSTANCE.clienteFromDto(dto)).getId();
+  public UUID saveCliente(ClienteInputDto dto) {
+    return repository.save(mapper.clienteFromDto(dto)).getId();
   }
 
-  public void updateCliente(UUID id, ClienteDetalheDto dto) throws ResourceNotFoundException {
-    clienteRepository.save(ClienteMapper.INSTANCE.clienteFromDto(dto,
-        clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new)));
+  public void updateCliente(UUID id, ClienteInputDto dto) throws ResourceNotFoundException {
+    repository
+        .save(mapper.clienteFromDto(dto, repository.findById(id).orElseThrow(ResourceNotFoundException::new)));
   }
 
   public void deleteCliente(UUID id) throws ResourceNotFoundException {
-    clienteRepository.delete(clienteRepository.findById(id).orElseThrow(ResourceNotFoundException::new));
+    repository.delete(repository.findById(id).orElseThrow(ResourceNotFoundException::new));
   }
 
   public Page<ClienteResumoDto> getClientes(String nome, String email, Pageable pageable)
       throws SearchException {
     if (!nome.isEmpty()) {
       Page<Cliente> clientes = !email.isEmpty()
-          ? clienteRepository.findAll(ClienteSpecs.getClientesByContainNomeAndEmail(nome, email), pageable)
-          : clienteRepository.findByNomeContainsIgnoreCaseOrderByNome(nome, pageable);
+          ? repository.findAll(ClienteSpecs.getClientesByContainNomeAndEmail(nome, email), pageable)
+          : repository.findByNomeContainsIgnoreCaseOrderByNome(nome, pageable);
 
       return new PageImpl<>(
-          clientes.stream().map(ClienteMapper.INSTANCE::clienteToResumoDto).collect(Collectors.toList()), pageable,
+          clientes.stream().map(mapper::clienteToResumoDto).collect(Collectors.toList()), pageable,
           clientes.getTotalPages());
     }
     if (!email.isEmpty()) {
-      return clienteRepository.findClienteResumoByEmail(email, pageable);
+      return repository.findClienteResumoByEmail(email, pageable);
     }
     throw new SearchException("Nenhum parâmetro de busca encontrado");
   }
