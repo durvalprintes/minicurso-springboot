@@ -22,6 +22,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+  private static final String[] WHITELIST = {
+      "/swagger-resources/**",
+      "/swagger-ui/**",
+      "/v2/api-docs",
+      "/webjars/**"
+  };
+
   enum ROLES {
     LEITURA, ESCRITA;
   }
@@ -53,6 +60,7 @@ public class SecurityConfig {
     return http
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeRequests(auth -> {
+          auth.antMatchers(WHITELIST).permitAll();
           auth.antMatchers("/home/hello").permitAll();
           auth.antMatchers(HttpMethod.GET).hasRole(ROLES.LEITURA.name());
           auth.anyRequest().hasRole(ROLES.ESCRITA.name());
