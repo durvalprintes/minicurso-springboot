@@ -29,7 +29,7 @@ public class SecurityConfig {
       "/webjars/**"
   };
 
-  enum ROLES {
+  enum PERMISSAO {
     LEITURA, ESCRITA;
   }
 
@@ -38,13 +38,13 @@ public class SecurityConfig {
     var user = User.builder()
         .username("user")
         .password(passwordEncoder().encode("minicurso"))
-        .roles(ROLES.LEITURA.name())
+        .roles(PERMISSAO.LEITURA.name())
         .build();
 
     var admin = User.builder()
         .username("admin")
         .password(passwordEncoder().encode("springboot"))
-        .roles(Stream.of(ROLES.values()).map(Enum::name).toArray(String[]::new))
+        .roles(Stream.of(PERMISSAO.values()).map(Enum::name).toArray(String[]::new))
         .build();
 
     return new InMemoryUserDetailsManager(user, admin);
@@ -62,8 +62,8 @@ public class SecurityConfig {
         .authorizeRequests(auth -> {
           auth.antMatchers(WHITELIST).permitAll();
           auth.antMatchers("/home/hello").permitAll();
-          auth.antMatchers(HttpMethod.GET).hasRole(ROLES.LEITURA.name());
-          auth.anyRequest().hasRole(ROLES.ESCRITA.name());
+          auth.antMatchers(HttpMethod.GET).hasRole(PERMISSAO.LEITURA.name());
+          auth.anyRequest().hasRole(PERMISSAO.ESCRITA.name());
         })
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .httpBasic(withDefaults())

@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
 import springfox.documentation.annotations.ApiIgnore;
 
 @ApiIgnore
+@Slf4j
 @RestController
 @RequestMapping(path = "/home")
 public class HomeController {
@@ -20,6 +22,7 @@ public class HomeController {
 
   @GetMapping(value = "/hello")
   String hello(Principal principal) {
+    Optional.ofNullable(principal).ifPresent(usuario -> log.info("Usuario: " + usuario.toString()));
     return "Hello, " + (Optional.ofNullable(principal).isPresent() ? principal.getName() : mensagem);
   }
 
