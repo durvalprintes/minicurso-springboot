@@ -22,7 +22,8 @@ public class HomeController {
 
   @GetMapping(value = "/hello")
   String hello(Principal principal) {
-    Optional.ofNullable(principal).ifPresent(usuario -> log.info("Usuario: " + usuario.toString()));
+    log.info("Call hello endpoint");
+    Optional.ofNullable(principal).ifPresent(usuario -> log.debug("Usuario: " + usuario.toString()));
     return "Hello, " + (Optional.ofNullable(principal).isPresent() ? principal.getName() : mensagem);
   }
 
