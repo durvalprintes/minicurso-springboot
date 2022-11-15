@@ -29,6 +29,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -56,19 +58,21 @@ public class ClienteControllerTest {
   }
 
   @Test
+  @WithAnonymousUser
   void deveriaRetornarError401ComUsuarioIncorreto() throws Exception {
     request
-        .perform(get("/clientes").with(httpBasic("user", "wrong")))
+        .perform(get("/clientes"))
         .andExpect(status().isUnauthorized());
   }
 
   @Test
+  @WithUserDetails(value = "user")
   void deveriaRetornarListaDeResumoClientes() throws Exception {
     ClienteResumoDto resumo = new ClienteResumoDto(UUID.randomUUID(), "CLIENTE TESTE", "TESTE@TESTANDO.COM");
     when(service.getClientes()).thenReturn(List.of(resumo));
 
     request
-        .perform(get("/clientes").with(httpBasic("user", "minicurso")))
+        .perform(get("/clientes"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", is(notNullValue())))
         .andExpect(jsonPath("$", hasSize(1)))
@@ -76,22 +80,25 @@ public class ClienteControllerTest {
   }
 
   @Test
+  @WithUserDetails(value = "user")
   void deveriaRetornarSemConteudo() throws Exception {
     when(service.getClientes()).thenReturn(new ArrayList<>());
-
+    
     request
-        .perform(get("/clientes").with(httpBasic("user", "minicurso")))
-        .andExpect(status().isNoContent());
+    .perform(get("/clientes"))
+    .andExpect(status().isNoContent());
   }
 
   @Test
+  @WithUserDetails(value = "user")
   void deveriaRetornarError403ComUsuarioSemPermissao() throws Exception {
     request
-        .perform(post("/clientes").with(httpBasic("user", "minicurso")))
+        .perform(post("/clientes"))
         .andExpect(status().isForbidden());
   }
 
   @Test
+  @WithUserDetails(value = "admin")
   void deveriaRetornarLocationHeaderComIddoClienteInserido() throws Exception {
     UUID id = UUID.randomUUID();
     when(service.isUnique(anyString())).thenReturn(true);
@@ -101,8 +108,7 @@ public class ClienteControllerTest {
         .perform(
             post("/clientes")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(clienteJson())
-                .with(httpBasic("admin", "springboot")))
+                .content(clienteJson()))
         .andExpect(status().isCreated())
         .andReturn().getResponse().getHeader("location");
     assertNotNull(location);
@@ -141,7 +147,7 @@ public class ClienteControllerTest {
             post("/clientes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
-                .with(httpBasic("admin", "springboot")))
+                .with(httpBasic("admin", "password")))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.status", is(400)))
         .andExpect(jsonPath("$.descricao", is("Entrada de dados inválida")))

@@ -13,8 +13,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -22,28 +20,28 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-  private static final String[] WHITELIST = {
+  enum PERMISSAO {
+    LEITURA, ESCRITA;
+  }
+
+  private static final String[] SWAGGER = {
       "/swagger-resources/**",
       "/swagger-ui/**",
       "/v2/api-docs",
       "/webjars/**"
   };
 
-  enum PERMISSAO {
-    LEITURA, ESCRITA;
-  }
-
   @Bean
   public UserDetailsService userDetailsManager() {
     var user = User.builder()
         .username("user")
-        .password(passwordEncoder().encode("minicurso"))
+        .password("{noop}password")
         .roles(PERMISSAO.LEITURA.name())
         .build();
 
     var admin = User.builder()
         .username("admin")
-        .password(passwordEncoder().encode("springboot"))
+        .password("{noop}password")
         .roles(Stream.of(PERMISSAO.values()).map(Enum::name).toArray(String[]::new))
         .build();
 
@@ -51,16 +49,11 @@ public class SecurityConfig {
   }
 
   @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
-
-  @Bean
   public SecurityFilterChain configure(HttpSecurity http) throws Exception {
     return http
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeRequests(auth -> {
-          auth.antMatchers(WHITELIST).permitAll();
+          auth.antMatchers(SWAGGER).permitAll();
           auth.antMatchers("/home/hello").permitAll();
           auth.antMatchers("/manage/**").hasRole(PERMISSAO.ESCRITA.name());
           auth.antMatchers(HttpMethod.GET).hasRole(PERMISSAO.LEITURA.name());
