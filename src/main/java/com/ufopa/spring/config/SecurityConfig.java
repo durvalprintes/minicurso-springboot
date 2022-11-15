@@ -62,6 +62,7 @@ public class SecurityConfig {
         .authorizeRequests(auth -> {
           auth.antMatchers(WHITELIST).permitAll();
           auth.antMatchers("/home/hello").permitAll();
+          auth.antMatchers("/manage/**").hasRole(PERMISSAO.ESCRITA.name());
           auth.antMatchers(HttpMethod.GET).hasRole(PERMISSAO.LEITURA.name());
           auth.anyRequest().hasRole(PERMISSAO.ESCRITA.name());
         })
