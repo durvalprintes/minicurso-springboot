@@ -24,6 +24,8 @@ public class SecurityConfig {
     LEITURA, ESCRITA;
   }
 
+  private static final String SENHA_PADRAO = "{noop}password";
+
   private static final String[] SWAGGER = {
       "/swagger-resources/**",
       "/swagger-ui/**",
@@ -35,17 +37,23 @@ public class SecurityConfig {
   public UserDetailsService userDetailsManager() {
     var user = User.builder()
         .username("user")
-        .password("{noop}password")
+        .password(SENHA_PADRAO)
         .roles(PERMISSAO.LEITURA.name())
         .build();
 
-    var admin = User.builder()
-        .username("admin")
-        .password("{noop}password")
-        .roles(Stream.of(PERMISSAO.values()).map(Enum::name).toArray(String[]::new))
+    var admin1 = User.builder()
+        .username("admin1")
+        .password(SENHA_PADRAO)
+        .roles(getPermissoes())
         .build();
 
-    return new InMemoryUserDetailsManager(user, admin);
+    var admin2 = User.builder()
+        .username("admin2")
+        .password(SENHA_PADRAO)
+        .roles(getPermissoes())
+        .build();
+
+    return new InMemoryUserDetailsManager(user, admin1, admin2);
   }
 
   @Bean
@@ -62,6 +70,10 @@ public class SecurityConfig {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .httpBasic(withDefaults())
         .build();
+  }
+
+  private String[] getPermissoes() {
+    return Stream.of(PERMISSAO.values()).map(Enum::name).toArray(String[]::new);
   }
 
 }

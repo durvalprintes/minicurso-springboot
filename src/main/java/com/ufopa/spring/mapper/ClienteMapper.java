@@ -17,7 +17,7 @@ public interface ClienteMapper {
 
   ClienteResumoDto clienteToResumoDto(Cliente cliente);
 
-  @Mapping(source = "modifiedDate", target = "ultimaModificacao")
+  @Mapping(source = "dataAlteracao", target = "ultimaModificacao")
   ClienteDetalheDto clienteToDetalheDto(Cliente cliente);
 
   @Mapping(source = "enviaEmail", target = "enviaEmail", defaultValue = "false")

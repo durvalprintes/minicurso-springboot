@@ -12,7 +12,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -36,25 +38,41 @@ public class Cliente {
   @GeneratedValue(generator = "UUID")
   @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
   private UUID id;
+
   @Column(nullable = false)
   private String nome;
+
   @Column(nullable = false)
   private LocalDate dataNascimento;
+
   @Column(length = 11, nullable = false, unique = true)
   private String telefone;
+
   @Column(nullable = false, unique = true)
   private String email;
+
   @Builder.Default
   @Column(columnDefinition = "bool not null default false")
   private Boolean enviaEmail = false;
+
   @Builder.Default
   @Column(columnDefinition = "float8 not null default 0")
   private Double rendaMedia = 0D;
+
+  @Column(nullable = false, updatable = false)
+  @CreatedBy
+  private String inseriu;
+
   @Column(nullable = false)
+  @LastModifiedBy
+  private String alterou;
+
+  @Column(nullable = false, updatable = false)
   @CreatedDate
-  private LocalDateTime createdDate;
+  private LocalDateTime dataInsercao;
+
   @Column(nullable = false)
   @LastModifiedDate
-  private LocalDateTime modifiedDate;
+  private LocalDateTime dataAlteracao;
 
 }
