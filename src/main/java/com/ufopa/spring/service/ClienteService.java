@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ufopa.spring.dto.ClienteDetalheDto;
 import com.ufopa.spring.dto.ClienteInputDto;
@@ -21,6 +22,7 @@ import com.ufopa.spring.repository.ClienteRepository;
 import com.ufopa.spring.specification.ClienteSpecs;
 
 @Service
+@Transactional
 public class ClienteService {
 
   @Autowired
