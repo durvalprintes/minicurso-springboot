@@ -98,7 +98,7 @@ public class ClienteControllerTest {
   }
 
   @Test
-  @WithUserDetails(value = "admin")
+  @WithUserDetails(value = "admin1")
   void deveriaRetornarLocationHeaderComIddoClienteInserido() throws Exception {
     UUID id = UUID.randomUUID();
     when(service.isUnique(anyString())).thenReturn(true);
@@ -147,7 +147,7 @@ public class ClienteControllerTest {
             post("/clientes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
-                .with(httpBasic("admin", "password")))
+                .with(httpBasic("admin2", "password")))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.status", is(400)))
         .andExpect(jsonPath("$.descricao", is("Entrada de dados inválida")))
