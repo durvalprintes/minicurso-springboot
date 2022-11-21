@@ -1,0 +1,96 @@
+server:
+  port: 9000
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: ufopa-minicurso-api-rest-springboot
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+        '[default_schema]': ${DB_SCHEMA}
+  mvc:
+    pathmatch:
+      matching-strategy: ant-path-matcher
+  profiles:
+    active: dev
+  web:
+    locale: pt_BR
+
+home:
+  hello: world
+
+management:
+  endpoints:
+    web:
+      base-path: /manage
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true
+
+info:
+  application:
+    name: ${spring.application.name}
+    description: '@project.description@'
+    version: '@project.version@'
+    spring-boot-version: '@project.parent.version@'
+    java-version: '@maven.compiler.release@'
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        '[format_sql]': true
+    defer-datasource-initialization: true
+  sql:
+    init.mode: always
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+        type:
+          descriptor: 
+            sql:
+              BasicBinder: trace
+    '[com.ufopa.spring]': debug
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  jpa:
+    properties:
+      hibernate:
+        '[default_schema]': test
+    hibernate:
+      ddl-auto: create-drop
+  sql:
+    init:
+      mode: never
+
+home: 
+  hello: test
+
+
+
+
