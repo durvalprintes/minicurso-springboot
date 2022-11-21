@@ -19,12 +19,12 @@ Abaixo, segue os demais detalhes, para execução do projeto. Se houver erros ou
 
 ### Pre-requisitos
 
-É necessário ter instalado a JDK 11, maven e uma base PostgreSQL na máquina local. Indico o uso de _containers_, como o **Docker**, com este projeto. 
+É necessário ter instalado a JDK 11, maven e uma base PostgreSQL na máquina local. Indico o uso de _containers_ com o **Docker**, com este projeto. 
 Acesse o site https://www.docker.com/, para visualizar as instruções de instalação, de acordo com o seu sistema operacional. 
 Feito isso, para criar uma instancia da imagem do Postgres, só executar o seguinte comando:
 
 ```
-docker run --name minicurso -d -e POSTGRES_USER=app -e POSTGRES_PASSWORD=AppP@ss -p 5432:5432 postgres:15-alpine
+docker run --name minicurso -d -e POSTGRES_USER=${DB_USER} -e POSTGRES_PASSWORD=${DB_PASS} -v 'C:\docker\volumes\ufopa\minicurso\postgresql\data:/var/lib/postgresql/data' -p 5432:5432 postgres:15-alpine
 ```
 
 ### Execução
@@ -52,13 +52,14 @@ Os seguintes conceitos, recursos e tecnologias são aplicados no projeto:
 - API REST;
 - JPA com PostgreSQL;
 - CRUD completo de uma entidade mapeada no banco;
-- Objetos de transferência de dados (DTOs) com MapStruct;
+- Mapeamentos ente Objetos de transferência de dados (DTOs) e entidades com MapStruct;
 - Pesquisas com Specifications;
 - Validações da entrada de dados;
 - Tratamento de exceções;
 - Autenticação e autorização;
 - Testes unitários e cobertura de testes;
 - Documentação com Swagger;
+- Monitoramento com Actuator;
 
 ## 🎉 Agradecimento <a name = "thanks"></a>
 Agradeço ao convite da docente Flávia Monteiro para ministrar e incentivar o compartilhamento do conhecimento entre todos os envolvidos.
