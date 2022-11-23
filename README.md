@@ -19,8 +19,8 @@ Abaixo, segue os demais detalhes, para execução do projeto. Se houver erros ou
 
 ### Pré-requisitos
 
-É necessário ter instalado a JDK 11, maven e uma base PostgreSQL na máquina local. Indico o uso de _containers_ com o **Docker**, com este projeto. Acesse o site https://www.docker.com/, para visualizar as instruções de instalação, de acordo com o seu sistema operacional.
-Primeiramente é necessário criar algumas variáveis de ambiente que, o projeto irá fazer uso, então, no seu terminal do Linux ou, usando Git Bash, execute o comando:
+É necessário ter instalado a JDK 11, Maven e o PostgreSQL na máquina local, mas caso você não tenha ou, prefere não instalar, indico o uso de _containers_ com o **Docker**, com este projeto. Acesse o site https://www.docker.com/, para visualizar as instruções de instalação, de acordo com o seu sistema operacional.
+Primeiramente é necessário criar algumas variáveis de ambiente que, o projeto irá fazer uso, então, no seu terminal do Linux ou, usando Git Bash, navegue até o diretorio do projeto e execute o comando:
 ```
 nano ~/.bashrc
 ```
@@ -41,11 +41,15 @@ export DB_NAME=*****
 export DB_SCHEMA=*****
 
 #URL DE CONEXAO
-export DB_URL=jdbc:postgresql://localhost:5432/$DB_NAME
+export DB_URL=jdbc:postgresql://database:5432/$DB_NAME
 ```
-Feito isso, para criar uma instancia da imagem do Postgres com Docker, basta executar o seguinte comando:
+Feito isso, vamos criar uma rede de comunicação para uso dos _containers_, com o comando abaixo:
 ```
-docker run --name minicurso -d -e POSTGRES_USER=${DB_USER} -e POSTGRES_PASSWORD=${DB_PASS} -e POSTGRES_DB=${DB_NAME} -e POSTGRES_SCHEMA=${DB_SCHEMA} -v 'C:\docker\volumes\ufopa\minicurso\postgresql\data:/var/lib/postgresql/data' -p 5432:5432 postgres:15-alpine
+docker network create ufopa
+```
+Para criar o container com a imagem do Postgres com Docker, basta executar o seguinte comando:
+```
+docker run --name database -d -e POSTGRES_USER=${DB_USER} -e POSTGRES_PASSWORD=${DB_PASS} -e POSTGRES_DB=${DB_NAME} -e POSTGRES_SCHEMA=${DB_SCHEMA} -v 'C:\docker\volumes\ufopa\minicurso\postgresql\data:/var/lib/postgresql/data' -p 5432:5432 --network ufopa postgres:15-alpine
 ```
 Com o container executando, caso você não tenha uma ferramenta de Administração de banco de dados instalado para criar os _schemas_ necessários, execute os seguintes comandos:
 1. Conectar o terminal ao container criado acima:
@@ -56,22 +60,38 @@ docker exec -it minicurso bash
 ```
 psql -U $POSTGRES_USER -d $POSTGRES_DB -c "CREATE SCHEMA IF NOT EXISTS $POSTGRES_SCHEMA; CREATE SCHEMA IF NOT EXISTS test"
 ```
+3. Por fim, saia do terminal interativo do Docker com: ``` exit ```
+
+Por ultimo, vamos criar uma imagem Docker, com as configuracoes necessárias para o ambiente de desenvolvimento da Api, utilizando o comando abaixo:
+```
+docker build -f dev.Dockerfile -t minicurso/spring:latest . 
+```
+E subir um container da Api com a imagem criada, executando:
+```
+$ docker run -d --name api -e DB_USER=${DB_USER} -e DB_PASS=${DB_PASS} -e DB_NAME=${DB_NAME} -e DB_SCHEMA=${DB_SCHEMA} -e DB_URL=${DB_URL} -v  /$(pwd):/root/api -v /$HOME/.m2:/root/.m2 -p 9000:9000 --network ufopa minicurso/spring:latest
+```
 
 ### Execução
 
-Para executar o projeto, você poderá fazer uso de uma IDE, como IntelliJ, VSCode, Eclipse, ou executar no terminal o comando maven, aplicando o perfil DEV para desenvolvimento:
+Se voce executou com sucesso os comandos anteriores, o servidor já está rodando dentro do container, com restart automático quando houver mudançcas. No caso de erros, basta parar e executar o container da Api novamente.
+
+Mas, se estiver com o ambiente configurado para desenvolvimento localmente, execute no terminal o comando maven, aplicando o perfil **DEV** para desenvolvimento:
 
 ```
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-Se optar por gerar um executável _JAR_, deverá executar o comando:
+Se optar por gerar um executável _JAR_, deverá aplicar o comando:
 
 ```
 mvn clean package
 ```
+E para executar, faça:
+```
+java -jar spring-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
+```
 
-Em ambos os cenários, você deverá ser capaz de gerar a seguinte saída:
+Em ambas os cenários, você deverá ser capaz de gerar a seguinte saída:
 
 ![spring](spring.jpg)
 
