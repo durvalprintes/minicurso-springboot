@@ -64,24 +64,28 @@ psql -U $POSTGRES_USER -d $POSTGRES_DB -c "CREATE SCHEMA IF NOT EXISTS $POSTGRES
 ```
 3. Por fim, saia do terminal interativo do container com: ``` exit ```
 
-Por último, vamos criar uma imagem Docker, com as configurações necessárias para o ambiente de desenvolvimento da Api, utilizando o comando abaixo:
+Para o último container, vamos criar uma imagem Docker, com as configurações necessárias para o ambiente de desenvolvimento da Api, utilizando o comando abaixo:
 ```
-docker build -f dev.Dockerfile -t minicurso/spring:latest . 
+docker build -f dev.Dockerfile -t minicurso/spring:latest .
 ```
-E criar um container do servidor da Api com a imagem criada, executando:
+Se desejar, você tem a opção também de criar uma imagem com _Debug_ habilitado, com o seguinte comando:
 ```
-$ docker run -d --name api -e DB_USER=${DB_USER} -e DB_PASS=${DB_PASS} -e DB_NAME=${DB_NAME} -e DB_SCHEMA=${DB_SCHEMA} -e DB_URL=${DB_URL} -v  /$(pwd):/root/api -v /$HOME/.m2:/root/.m2 -p 9000:9000 --network ufopa minicurso/spring:latest
+docker build --build-arg JAVA_OPTS='-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005' -f dev.Dockerfile -t minicurso/spring:latest . 
+```
+E por fim, vamos construir o container do servidor da Api com a imagem criada, executando:
+```
+$ docker run -d --name api -e DB_USER=${DB_USER} -e DB_PASS=${DB_PASS} -e DB_NAME=${DB_NAME} -e DB_SCHEMA=${DB_SCHEMA} -e DB_URL=${DB_URL} -v  /$(pwd):/root/api -v /$HOME/.m2:/root/.m2 -p 9000:9000 -p 5005:5005 --network ufopa minicurso/spring:latest
 ```
 
 ### Execução
 
-Se voce executou com sucesso os comandos anteriores, o servidor já está rodando dentro do container da Api, com restart automático quando houver mudanças. No caso de erros internos, o container irá parar, somente bastando executa-lo novamente para refletir novos ajustes.
+Se você executou com sucesso os comandos anteriores, o servidor já está rodando dentro do container da Api, com restart automático quando houver mudanças. No caso de erros internos, o container irá parar, somente bastando executa-lo novamente para refletir novos ajustes.
 
-Mas, se estiver com o ambiente configurado para desenvolvimento localmente, além de opções de Debug, utilizando uma IDE, como IntelliJ, VSCode, Eclipse e outras, poderá executar no terminal o comando maven, aplicando o perfil **DEV** para desenvolvimento:
+Mas, se estiver com o ambiente configurado para desenvolvimento localmente, além de opções com _Debugger_, utilizando uma IDE, como IntelliJ, VSCode, Eclipse e outras, poderá executar no terminal o comando maven, aplicando o perfil **DEV** para desenvolvimento:
 ```
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
-Através do maven também, você tem a opção de gerar o executável _JAR_, simplementes aplicando o comando:
+Através do maven também, você tem a opção de gerar o executável _JAR_, simplesmente aplicando o comando:
 ```
 mvn clean package
 ```
@@ -89,7 +93,7 @@ E para executar, faça:
 ```
 java -jar spring-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
 ```
-Esta última opção, seria para gerar um executavel *final* do projeto, visto que todo o código e dependências estão compiladas e embutidas, não refletindo novos ajustes.  
+Esta última opção, seria para gerar um executável **final** do projeto, visto que todo o código e dependências estão compiladas e embutidas, não refletindo novos ajustes.  
 
 Em todos os cenários, você deverá ser capaz de gerar a seguinte saída:
 
