@@ -22,7 +22,7 @@ Abaixo, segue os demais detalhes, para execução do projeto. Se houver erros ou
 É necessário ter instalado a JDK 11, Maven e o PostgreSQL na máquina local,
 mas caso você não tenha ou, prefere não instalar, indico o uso de _containers_ com o **Docker**, com este projeto.
 Acesse o site https://www.docker.com/, para visualizar as instruções de instalação, de acordo com o seu sistema operacional.
-Primeiramente, é necessário criar algumas variáveis de ambiente que, o projeto irá fazer uso. Crie então, na raiz do projeto o arquivo ```.env.dev``` e cole o seguinte texto, substituindo os **asteriscos**, pelos valores que você desejar:
+Primeiramente, é necessário criar algumas variáveis de ambiente que, o projeto irá fazer uso. Crie então, na raiz do projeto o arquivo ```.dev.env``` e cole o seguinte texto, substituindo os **asteriscos**, pelos valores que você desejar:
 ```
 #NOME DO USUÁRIO DO BANCO DE DADOS
 USER=**********
@@ -41,7 +41,7 @@ LOCAL=$HOME
 ```
 Feito isso, vamos criar dois _containers_, um para o banco de dados e outro para o servidor da aplicação e, com todas as configurações necessárias para o ambiente de desenvolvimento da Api, abra o terminal e navegue até o diretório deste projeto e execute o único comando abaixo:
 ```
-docker-compose -p minicurso --env-file .env.dev -f docker/dev.docker-compose.yml up --build
+docker-compose -p minicurso --env-file .dev.env -f docker/dev.docker-compose.yml up --build
 ```
 
 ### Execução

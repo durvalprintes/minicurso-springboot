@@ -29,7 +29,7 @@ services:
     image: "minicurso/spring:latest"
     build:
       context: .
-      dockerfile: ./dev.Dockerfile
+      dockerfile: ./Dockerfile.dev
     container_name: spring
     environment:
       - DB_USER=${USER}
