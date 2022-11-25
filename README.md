@@ -64,15 +64,11 @@ psql -U $POSTGRES_USER -d $POSTGRES_DB -c "CREATE SCHEMA IF NOT EXISTS $POSTGRES
 ```
 3. Por fim, saia do terminal interativo do container com: ``` exit ```
 
-Para o último container, vamos criar uma imagem Docker, com as configurações necessárias para o ambiente de desenvolvimento da Api, utilizando o comando abaixo:
-```
-docker build -f dev.Dockerfile -t minicurso/spring:latest .
-```
-Se desejar, você tem a opção também de criar uma imagem com _Debug_ habilitado, com o seguinte comando:
+Para o último container, vamos criar uma imagem Docker, com todas as configurações necessárias para o ambiente de desenvolvimento da Api, utilizando o comando abaixo:
 ```
 docker build --build-arg JAVA_OPTS='-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005' -f dev.Dockerfile -t minicurso/spring:latest . 
 ```
-E por fim, vamos construir o container do servidor da Api com a imagem criada, executando:
+E por fim, vamos construir o container do servidor da Api com a imagem criada acima, executando:
 ```
 $ docker run -d --name api -e DB_USER=${DB_USER} -e DB_PASS=${DB_PASS} -e DB_NAME=${DB_NAME} -e DB_SCHEMA=${DB_SCHEMA} -e DB_URL=${DB_URL} -v  /$(pwd):/root/api -v /$HOME/.m2:/root/.m2 -p 9000:9000 -p 5005:5005 --network ufopa minicurso/spring:latest
 ```
