@@ -22,62 +22,33 @@ Abaixo, segue os demais detalhes, para execução do projeto. Se houver erros ou
 É necessário ter instalado a JDK 11, Maven e o PostgreSQL na máquina local,
 mas caso você não tenha ou, prefere não instalar, indico o uso de _containers_ com o **Docker**, com este projeto.
 Acesse o site https://www.docker.com/, para visualizar as instruções de instalação, de acordo com o seu sistema operacional.
-Primeiramente, é necessário criar algumas variáveis de ambiente que, o projeto irá fazer uso. No seu terminal do Linux ou, usando **Git Bash**, navegue até o diretório deste projeto e execute o comando:
+Primeiramente, é necessário criar algumas variáveis de ambiente que, o projeto irá fazer uso. Crie então, na raiz do projeto o arquivo ```.env.dev``` e cole o seguinte texto, substituindo os **asteriscos**, pelos valores que você desejar:
 ```
-nano ~/.bashrc
-```
-Cole o seguinte texto, substituindo os **asteriscos**, pelos valores que você desejar:
-```
-#MINICURSO API REST COM SPRING BOOT
+#NOME DO USUÁRIO DO BANCO DE DADOS
+USER=**********
 
-#NOME DO USUARIO ROOT
-export DB_USER=*****
-
-#SENHA DO USUARIO ROOT
-export DB_PASS=*****
+#SENHA DO USUÁRIO DO BANCO DE DADOS
+PASS=**********
 
 #NOME DO BANCO DE DADOS
-export DB_NAME=*****
+DATABASE=**********
 
-#NOME DO ESQUEMA DA APLICACAO
-export DB_SCHEMA=*****
+#NOME DO ESQUEMA DA APLICAÇÃO
+SCHEMA=**********
 
-#URL DE CONEXAO
-export DB_URL=jdbc:postgresql://database:5432/$DB_NAME
+#CAMINHO ABSOLUTO DO USUÁRIO
+LOCAL=$HOME
 ```
-Feito isso, vamos criar uma rede de comunicação para uso dos _containers_, com o comando abaixo:
+Feito isso, vamos criar dois _containers_, um para o banco de dados e outro para o servidor da aplicação e, com todas as configurações necessárias para o ambiente de desenvolvimento da Api, abra o terminal e navegue até o diretório deste projeto e execute o único comando abaixo:
 ```
-docker network create ufopa
-```
-Para criar o container com a imagem do Postgres com Docker, basta executar o seguinte comando:
-```
-docker run --name database -d -e POSTGRES_USER=${DB_USER} -e POSTGRES_PASSWORD=${DB_PASS} -e POSTGRES_DB=${DB_NAME} -e POSTGRES_SCHEMA=${DB_SCHEMA} -v /$HOME/docker/volumes/ufopa/minicurso/postgresql/data:/var/lib/postgresql/data -p 5432:5432 --network ufopa postgres:15-alpine
-```
-Com o container executando, caso você não tenha uma ferramenta de Administração de banco de dados instalado, para criar os _schemas_ necessários, execute os seguintes comandos:
-1. Conectar o terminal ao container criado acima:
-```
-docker exec -it database bash
-```
-2. Interagir com o Postgres e criar os _schemas_ da aplicação e para os testes, respectivamente:
-```
-psql -U $POSTGRES_USER -d $POSTGRES_DB -c "CREATE SCHEMA IF NOT EXISTS $POSTGRES_SCHEMA; CREATE SCHEMA IF NOT EXISTS test"
-```
-3. Por fim, saia do terminal interativo do container com: ``` exit ```
-
-Para o último container, vamos criar uma imagem Docker, com todas as configurações necessárias para o ambiente de desenvolvimento da Api, utilizando o comando abaixo:
-```
-docker build --build-arg JAVA_OPTS='-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005' -f dev.Dockerfile -t minicurso/spring:latest . 
-```
-E por fim, vamos construir o container do servidor da Api com a imagem criada acima, executando:
-```
-$ docker run -d --name api -e DB_USER=${DB_USER} -e DB_PASS=${DB_PASS} -e DB_NAME=${DB_NAME} -e DB_SCHEMA=${DB_SCHEMA} -e DB_URL=${DB_URL} -v  /$(pwd):/root/api -v /$HOME/.m2:/root/.m2 -p 9000:9000 -p 5005:5005 --network ufopa minicurso/spring:latest
+docker-compose -p minicurso --env-file .env.dev -f docker/dev.docker-compose.yml up --build
 ```
 
 ### Execução
 
-Se você executou com sucesso os comandos anteriores, o servidor já está rodando dentro do container da Api, com restart automático quando houver mudanças. No caso de erros internos, o container irá parar, somente bastando executa-lo novamente para refletir novos ajustes.
+Se você executou com sucesso o comando anterior, o servidor já está rodando dentro do container da aplicação, com restart automático quando houver mudanças e com suporte para debug da aplicação. No caso de erros internos, o container da aplicação irá parar, somente bastando executa-lo novamente para refletir novos ajustes.
 
-Mas, se estiver com o ambiente configurado para desenvolvimento localmente, além de opções com _Debugger_, utilizando uma IDE, como IntelliJ, VSCode, Eclipse e outras, poderá executar no terminal o comando maven, aplicando o perfil **DEV** para desenvolvimento:
+Mas, se estiver com o ambiente local configurado para o desenvolvimento da aplicação, poderá executar no terminal o comando maven, aplicando o perfil **DEV**:
 ```
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
@@ -89,9 +60,9 @@ E para executar, faça:
 ```
 java -jar spring-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
 ```
-Esta última opção, seria para gerar um executável **final** do projeto, visto que todo o código e dependências estão compiladas e embutidas, não refletindo novos ajustes.  
+Esta última opção, tem o intuito de gerar o executável **final** de uma versão do projeto, visto que todo o código e dependências estão compiladas e embutidas, não refletindo novos ajustes.  
 
-Em todos os cenários, você deverá ser capaz de gerar a seguinte saída:
+Em todos os cenários, você deverá ser capaz de gerar a seguinte saída para a aplicação:
 
 ![spring](spring.jpg)
 

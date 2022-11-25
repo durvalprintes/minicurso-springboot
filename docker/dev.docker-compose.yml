@@ -1,0 +1,52 @@
+version: "3.7"
+
+services:
+  db:
+    image: "postgres:15-alpine"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${DATABASE}", "-U", "${USER}" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    restart: always
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=${USER}
+      - POSTGRES_PASSWORD=${PASS}
+      - POSTGRES_DB=${DATABASE}
+      - POSTGRES_SCHEMA=${SCHEMA}
+    ports:
+      - 5432:5432
+    volumes:
+      - ./script/db_init.sh:/docker-entrypoint-initdb.d/init.sh
+      - ${LOCAL}/docker/volumes/ufopa/minicurso/postgresql/data:/var/lib/postgresql/data
+    networks:
+      - ufopa
+  api:
+    depends_on:
+      db:
+        condition: service_healthy
+    image: "minicurso/spring:latest"
+    build:
+      context: .
+      dockerfile: ./dev.Dockerfile
+    container_name: spring
+    environment:
+      - DB_USER=${USER}
+      - DB_PASS=${PASS}
+      - DB_NAME=${DATABASE}
+      - DB_SCHEMA=${SCHEMA}
+      - DB_URL=jdbc:postgresql://db:5432/${DATABASE}
+      - JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005
+    ports:
+      - 9000:9000
+      - 5005:5005
+    volumes:
+      - ../:/root/api
+      - ${LOCAL}/.m2:/root/.m2
+    networks:
+      - ufopa
+
+networks:
+  ufopa:
+    driver: bridge
