@@ -18,7 +18,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ./script/db_init.sh:/docker-entrypoint-initdb.d/init.sh
+      - ./script/db_init.sh:/docker-entrypoint-initdb.d/schemas.sh
       - ${LOCAL}/docker/volumes/ufopa/minicurso/postgresql/data:/var/lib/postgresql/data
     networks:
       - ufopa
