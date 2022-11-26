@@ -19,10 +19,9 @@ Abaixo, segue os demais detalhes, para execução do projeto. Se houver erros ou
 
 ### Pré-requisitos
 
-É necessário ter instalado a JDK 11, Maven e o PostgreSQL na máquina local,
-mas caso você não tenha ou, prefere não instalar, indico o uso de _containers_ com o **Docker**, com este projeto.
-Acesse o site https://www.docker.com/, para visualizar as instruções de instalação, de acordo com o seu sistema operacional.
-Primeiramente, é necessário criar algumas variáveis de ambiente que, o projeto irá fazer uso. Crie então, na raiz do projeto o arquivo ```dev.env``` e cole o seguinte texto, substituindo os **asteriscos**, pelos valores que você desejar:
+É necessário instalar a JDK 11, Maven e o PostgreSQL na máquina local, mas indico o uso de _containers_, como o [Docker](https://www.docker.com/) com este projeto.
+
+A aplicação faz uso de algumas variáveis de ambiente, então, na raiz do projeto, crie o arquivo ```dev.env``` e cole o texto abaixo, substituindo os **asteriscos**, pelos valores que você desejar:
 ```
 #NOME DO USUÁRIO DO BANCO DE DADOS
 API_USER=**********
@@ -35,20 +34,20 @@ API_SCHEMA=**********
 #CAMINHO ABSOLUTO DO DIRETÓRIO DO USUÁRIO
 API_LOCAL=$HOME
 ```
-Feito isso, vamos criar dois _containers_, um para o banco de dados e outro para o servidor da aplicação e, com todas as configurações necessárias para o ambiente de desenvolvimento da Api, abra o terminal e navegue até o diretório deste projeto e execute o único comando abaixo:
+Feito isso, vamos criar dois _containers_, um para o banco de dados e outro para o servidor da aplicação. Este último irá conter todas as configurações necessárias para o ambiente de desenvolvimento da Api. Abra o terminal, certifique-se que está no diretório do projeto e execute o único comando abaixo:
 ```
 docker-compose -p minicurso --env-file dev.env -f docker/dev.docker-compose.yml up --build
 ```
-Se ocorrer erros, execute o comando abaixo, corrija e tente o comando acima novamente:
+Se ocorrer erros, execute o próximo comando, corrija e tente o anterior novamente:
 ```
 docker-compose -p minicurso --env-file dev.env -f docker/dev.docker-compose.yml down --volumes
 ```
 
 ### Execução
 
-Se você executou com sucesso o comando anterior, o servidor já está rodando dentro do container da aplicação, com restart automático quando houver mudanças e com suporte para _Debug_. No caso de erros internos, o container da aplicação irá parar, somente bastando executa-lo novamente para refletir novos ajustes.
+Se você executou com sucesso o comando anterior, o servidor já está rodando dentro do container da aplicação, com restart automático quando houver mudanças e com suporte para _Debug_. Durante o desenvolvimento, se ocorrer erros internos, o container da aplicação poderá parar, somente bastando executa-lo novamente para refletir os novos ajustes.
 
-Mas, se estiver com o ambiente local configurado para o desenvolvimento da aplicação, poderá executar no terminal o comando maven, aplicando o perfil **DEV**:
+Mas, se estiver com o ambiente local configurado com os pré-requisitos da seção anterior, poderá executar no terminal o comando maven, aplicando o perfil **DEV**:
 ```
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
@@ -62,9 +61,9 @@ java -jar spring-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
 ```
 Esta última opção, tem o intuito de gerar o executável **final** de uma versão do projeto, visto que todo o código e dependências estão compiladas e embutidas, não refletindo novos ajustes.  
 
-Em todos os cenários, você deverá ser capaz de gerar a seguinte saída para a aplicação:
+Em todos os cenários, você deverá ser capaz de gerar a seguinte saída da aplicação:
 
-![spring](spring.jpg)
+![spring_output](spring.jpg)
 
 ## 🔧 Desenvolvimento <a name = "development"></a>
 
