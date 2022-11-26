@@ -4,22 +4,22 @@ services:
   db:
     image: "postgres:15-alpine"
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "${DATABASE}", "-U", "${USER}" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "${API_DATABASE}", "-U", "${API_USER}" ]
       timeout: 45s
       interval: 10s
       retries: 10
     restart: always
     container_name: postgres
     environment:
-      - POSTGRES_USER=${USER}
-      - POSTGRES_PASSWORD=${PASS}
-      - POSTGRES_DB=${DATABASE}
-      - POSTGRES_SCHEMA=${SCHEMA}
+      - POSTGRES_USER=${API_USER}
+      - POSTGRES_PASSWORD=${API_PASS}
+      - POSTGRES_DB=${API_DATABASE}
+      - POSTGRES_SCHEMA=${API_SCHEMA}
     ports:
       - 5432:5432
     volumes:
       - ./script/db_init.sh:/docker-entrypoint-initdb.d/schemas.sh
-      - ${LOCAL}/docker/volumes/ufopa/minicurso/postgresql/data:/var/lib/postgresql/data
+      - ufopa_minicurso_postgres_data:/var/lib/postgresql/data
     networks:
       - ufopa
   api:
@@ -32,21 +32,24 @@ services:
       dockerfile: ./Dockerfile.dev
     container_name: spring
     environment:
-      - DB_USER=${USER}
-      - DB_PASS=${PASS}
-      - DB_NAME=${DATABASE}
-      - DB_SCHEMA=${SCHEMA}
-      - DB_URL=jdbc:postgresql://db:5432/${DATABASE}
+      - DB_USER=${API_USER}
+      - DB_PASS=${API_PASS}
+      - DB_NAME=${API_DATABASE}
+      - DB_SCHEMA=${API_SCHEMA}
+      - DB_URL=jdbc:postgresql://db:5432/${API_DATABASE}
       - JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005
     ports:
       - 9000:9000
       - 5005:5005
     volumes:
       - ../:/root/api
-      - ${LOCAL}/.m2:/root/.m2
+      - ${API_LOCAL}/.m2:/root/.m2
     networks:
       - ufopa
 
 networks:
   ufopa:
     driver: bridge
+
+volumes:
+  ufopa_minicurso_postgres_data:
