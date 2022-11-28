@@ -21,7 +21,7 @@ Abaixo, segue os demais detalhes, para execução do projeto. Se houver erros ou
 
 É necessário instalar a JDK 11, Maven e o PostgreSQL na máquina local, mas indico o uso de _containers_, como o [Docker](https://www.docker.com/) com este projeto.
 
-A aplicação faz uso de algumas variáveis de ambiente, então, na raiz do projeto, crie o arquivo ```dev.env``` e cole o texto abaixo, substituindo os **asteriscos**, pelos valores que você desejar:
+A aplicação faz uso de algumas variáveis de ambiente, então, na raiz do projeto, crie o arquivo ```dev.env``` e cole o texto abaixo, substituindo os **ASTERISCOS**, pelos valores que você desejar:
 ```
 #NOME DO USUÁRIO DO BANCO DE DADOS
 API_USER=**********
@@ -47,9 +47,13 @@ docker-compose -p minicurso --env-file dev.env -f docker/dev.docker-compose.yml 
 
 Se você executou com sucesso o comando anterior, o servidor já está rodando dentro do container da aplicação, com restart automático quando houver mudanças e com suporte para _Debug_. Durante o desenvolvimento, se ocorrer erros internos, o container da aplicação poderá parar, somente bastando executa-lo novamente para refletir os novos ajustes.
 
-Mas, se estiver com o ambiente local configurado com os pré-requisitos da seção anterior, poderá executar no terminal o comando maven, aplicando o perfil **DEV**:
+Mas, se estiver com o ambiente local configurado com os pré-requisitos da seção anterior, crie somente o container de banco de dados com o comando:
 ```
-mvn spring-boot:run -Dspring-boot.run.profiles=dev
+docker-compose -p minicurso --env-file dev.env -f docker/dev.docker-compose.yml up -d db
+```
+em seguida execute no terminal o comando maven abaixo, substituindo ```${API_DATABASE}``` pelo valor da variável no arquivo ```dev.env```:
+```
+mvn spring-boot:run -Dspring-boot.run.profiles=dev -Dspring-boot.run.arguments=--spring.datasource.url=jdbc:postgresql://localhost:5432/${API_DATABASE}
 ```
 Através do maven também, você tem a opção de gerar o executável _JAR_, simplesmente aplicando o comando:
 ```
@@ -77,7 +81,7 @@ Os seguintes conceitos, recursos e tecnologias são aplicados no projeto:
 - Validações da entrada de dados;
 - Tratamento de exceções;
 - Autenticação e autorização;
-- Testes unitários e cobertura de testes;
+- Testes unitários e de integração com Testcontainers e cobertura de testes;
 - Documentação com Swagger;
 - Monitoramento com Actuator;
 - Conteinerização da aplicação para desenvolvimento;

@@ -10,10 +10,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,21 +20,17 @@ import com.ufopa.spring.dto.ClienteResumoDto;
 import com.ufopa.spring.model.Cliente;
 
 @ActiveProfiles("test")
-@DataJpaTest(showSql = false)
+@DataJpaTest
 @Import(JpaConfig.class)
-@AutoConfigureTestDatabase(replace = Replace.NONE)
 public class ClienteRepositoryTest {
 
   @Autowired
-  private TestEntityManager entityManager;
-
-  @Autowired
-  ClienteRepository repository;
+  private ClienteRepository repository;
 
   @Test
   void deveriaRetornarResumoDeClientesContendoNome() {
-    UUID id1 = UUID.fromString(entityManager.persistAndGetId(clienteDeTeste()).toString());
-    UUID id2 = UUID.fromString(entityManager.persistAndGetId(clienteDeTeste2()).toString());
+    UUID id1 = repository.save(clienteDeTeste()).getId();
+    UUID id2 = repository.save(clienteDeTeste2()).getId();
     Page<Cliente> clientes = repository.findByNomeContainsIgnoreCaseOrderByNome("TESTE".toLowerCase(), null);
     assertEquals(2L, clientes.get().count());
     assertEquals(id2, clientes.get().findFirst().get().getId());
@@ -47,7 +40,7 @@ public class ClienteRepositoryTest {
   @Test
   void deveriaRetornarResumoDeClientesContendoEmail() {
     Cliente cliente = clienteDeTeste();
-    UUID id = UUID.fromString(entityManager.persistAndGetId(cliente).toString());
+    UUID id = repository.save(cliente).getId();
     Page<ClienteResumoDto> clientes = repository.findClienteResumoByEmail(
         "@", null);
     assertNotNull(clientes.stream().filter(resumo -> resumo.getId().equals(id)).findAny().get());
@@ -55,17 +48,17 @@ public class ClienteRepositoryTest {
 
   @Test
   void deveriaRetornarVerdadeiroOuFalsoSeExistirAlgumClienteComEmailIgual() {
-    Cliente cliente = entityManager.persist(clienteDeTeste());
+    Cliente cliente = repository.save(clienteDeTeste());
     assertTrue(repository.existsByEmailIgnoreCase(cliente.getEmail()));
-    entityManager.remove(cliente);
+    repository.delete(cliente);
     assertFalse(repository.existsByEmailIgnoreCase(cliente.getEmail()));
   }
 
   @Test
   void deveriaRetornarVerdadeiroOuFalsoSeExisterAlgumClienteComTelefoneIgual() {
-    Cliente cliente = entityManager.persist(clienteDeTeste());
+    Cliente cliente = repository.save(clienteDeTeste());
     assertTrue(repository.existsByTelefone(cliente.getTelefone()));
-    entityManager.remove(cliente);
+    repository.delete(cliente);
     assertFalse(repository.existsByTelefone(cliente.getTelefone()));
   }
 

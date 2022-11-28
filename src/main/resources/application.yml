@@ -76,19 +76,17 @@ spring:
   config:
     activate:
       on-profile: test
+  datasource:
+    url: jdbc:tc:postgresql:15-alpine:///spring_boot_testcontainers
   jpa:
-    properties:
-      hibernate:
-        '[default_schema]': test
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
   sql:
     init:
       mode: never
+  test:
+    database:
+      replace: none
 
 home: 
   hello: test
-
-
-
-
