@@ -12,18 +12,19 @@ import com.ufopa.spring.dto.ClienteInputDto;
 import com.ufopa.spring.dto.ClienteResumoDto;
 import com.ufopa.spring.model.Cliente;
 
+@SuppressWarnings("squid:S1610")
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface ClienteMapper {
+public abstract class ClienteMapper {
 
-  ClienteResumoDto clienteToResumoDto(Cliente cliente);
+  public abstract ClienteResumoDto clienteToResumoDto(Cliente cliente);
 
   @Mapping(source = "dataAlteracao", target = "ultimaModificacao")
-  ClienteDetalheDto clienteToDetalheDto(Cliente cliente);
+  public abstract ClienteDetalheDto clienteToDetalheDto(Cliente cliente);
 
   @Mapping(source = "enviaEmail", target = "enviaEmail", defaultValue = "false")
   @Mapping(source = "rendaMedia", target = "rendaMedia", defaultValue = "0")
-  Cliente clienteFromDto(ClienteInputDto cliente);
+  public abstract Cliente clienteFromDto(ClienteInputDto cliente);
 
-  Cliente clienteFromDto(ClienteInputDto detalheDto, @MappingTarget Cliente cliente);
+  public abstract Cliente clienteFromDto(ClienteInputDto detalheDto, @MappingTarget Cliente cliente);
 
 }

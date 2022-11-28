@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -15,6 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.ufopa.spring.ClienteDataBuilder;
 import com.ufopa.spring.config.JpaConfig;
 import com.ufopa.spring.dto.ClienteResumoDto;
 import com.ufopa.spring.model.Cliente;
@@ -29,8 +29,8 @@ public class ClienteRepositoryTest {
 
   @Test
   void deveriaRetornarResumoDeClientesContendoNome() {
-    UUID id1 = repository.save(clienteDeTeste()).getId();
-    UUID id2 = repository.save(clienteDeTeste2()).getId();
+    UUID id1 = repository.save(ClienteDataBuilder.cliente1()).getId();
+    UUID id2 = repository.save(ClienteDataBuilder.cliente2()).getId();
     Page<Cliente> clientes = repository.findByNomeContainsIgnoreCaseOrderByNome("TESTE".toLowerCase(), null);
     assertEquals(2L, clientes.get().count());
     assertEquals(id2, clientes.get().findFirst().get().getId());
@@ -39,7 +39,7 @@ public class ClienteRepositoryTest {
 
   @Test
   void deveriaRetornarResumoDeClientesContendoEmail() {
-    Cliente cliente = clienteDeTeste();
+    Cliente cliente = ClienteDataBuilder.cliente1();
     UUID id = repository.save(cliente).getId();
     Page<ClienteResumoDto> clientes = repository.findClienteResumoByEmail(
         "@", null);
@@ -48,7 +48,7 @@ public class ClienteRepositoryTest {
 
   @Test
   void deveriaRetornarVerdadeiroOuFalsoSeExistirAlgumClienteComEmailIgual() {
-    Cliente cliente = repository.save(clienteDeTeste());
+    Cliente cliente = repository.save(ClienteDataBuilder.cliente1());
     assertTrue(repository.existsByEmailIgnoreCase(cliente.getEmail()));
     repository.delete(cliente);
     assertFalse(repository.existsByEmailIgnoreCase(cliente.getEmail()));
@@ -56,28 +56,10 @@ public class ClienteRepositoryTest {
 
   @Test
   void deveriaRetornarVerdadeiroOuFalsoSeExisterAlgumClienteComTelefoneIgual() {
-    Cliente cliente = repository.save(clienteDeTeste());
+    Cliente cliente = repository.save(ClienteDataBuilder.cliente1());
     assertTrue(repository.existsByTelefone(cliente.getTelefone()));
     repository.delete(cliente);
     assertFalse(repository.existsByTelefone(cliente.getTelefone()));
-  }
-
-  private Cliente clienteDeTeste() {
-    return Cliente.builder()
-        .nome("CLIENTE TESTE B")
-        .dataNascimento(LocalDate.parse("1999-09-09"))
-        .email("TESTE1@TESTANDO.COM")
-        .telefone("91988888888")
-        .build();
-  }
-
-  private Cliente clienteDeTeste2() {
-    return Cliente.builder()
-        .nome("CLIENTE TESTE A")
-        .dataNascimento(LocalDate.parse("2010-10-20"))
-        .email("TESTE2@TESTANDO.COM")
-        .telefone("91977777777")
-        .build();
   }
 
 }
