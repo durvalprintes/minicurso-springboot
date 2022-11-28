@@ -36,11 +36,11 @@ API_LOCAL=$HOME
 ```
 Feito isso, vamos criar dois _containers_, um para o banco de dados e outro para o servidor da aplicação. Este último irá conter todas as configurações necessárias para o ambiente de desenvolvimento da Api. Abra o terminal, certifique-se que está no diretório do projeto e execute o único comando abaixo:
 ```
-docker-compose -p minicurso --env-file dev.env -f docker/dev.docker-compose.yml up --build
+docker-compose -p minicurso -f docker/dev.docker-compose.yml --env-file dev.env --profile api up --build
 ```
 Se ocorrer erros, execute o próximo comando, corrija e tente o anterior novamente:
 ```
-docker-compose -p minicurso --env-file dev.env -f docker/dev.docker-compose.yml down --volumes
+docker-compose -p minicurso -f docker/dev.docker-compose.yml --env-file dev.env down --volumes
 ```
 
 ### Execução
@@ -49,7 +49,7 @@ Se você executou com sucesso o comando anterior, o servidor já está rodando d
 
 Mas, se estiver com o ambiente local configurado com os pré-requisitos da seção anterior, crie somente o container de banco de dados com o comando:
 ```
-docker-compose -p minicurso --env-file dev.env -f docker/dev.docker-compose.yml up -d db
+docker-compose -p minicurso --env-file dev.env -f docker/dev.docker-compose.yml up -d
 ```
 em seguida execute no terminal o comando maven abaixo, substituindo ```${API_DATABASE}``` pelo valor da variável no arquivo ```dev.env```:
 ```

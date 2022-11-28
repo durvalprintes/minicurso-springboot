@@ -46,6 +46,7 @@ services:
       - ${API_LOCAL}/.m2:/root/.m2
     networks:
       - ufopa
+    profiles: ["api"]
 
 networks:
   ufopa:
