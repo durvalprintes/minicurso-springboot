@@ -9,12 +9,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.ufopa.spring.ClienteDataBuilder;
 import com.ufopa.spring.dto.ClienteDetalheDto;
 import com.ufopa.spring.dto.ClienteInputDto;
 import com.ufopa.spring.dto.ClienteResumoDto;
@@ -28,17 +30,23 @@ import com.ufopa.spring.repository.ClienteRepository;
 public class ClienteServiceTest {
 
   @Autowired
-  ClienteService service;
+  private ClienteService service;
 
   @MockBean
-  ClienteRepository repository;
+  private ClienteRepository repository;
 
   @MockBean
-  ClienteMapper mapper;
+  private ClienteMapper mapper;
+
+  private Cliente cliente;
+
+  @BeforeEach
+  void setup() {
+    cliente = ClienteDataBuilder.onlyWithId();
+  }
 
   @Test
   void deveriaRetornarResumoDeTodosOsClientes() {
-    Cliente cliente = clienteDeTeste();
     when(repository.findAll()).thenReturn(List.of(cliente));
     when(mapper.clienteToResumoDto(cliente)).thenReturn(ClienteResumoDto.builder().id(cliente.getId()).build());
     List<ClienteResumoDto> resumos = service.getClientes();
@@ -48,7 +56,6 @@ public class ClienteServiceTest {
 
   @Test
   void deveriaRetornarDetalheDeUmCliente() throws ResourceNotFoundException {
-    Cliente cliente = clienteDeTeste();
     when(repository.findById(any(UUID.class))).thenReturn(Optional.of(cliente));
     when(mapper.clienteToDetalheDto(cliente)).thenReturn(ClienteDetalheDto.builder().id(cliente.getId()).build());
     ClienteDetalheDto detalhe = service.getCliente(cliente.getId());
@@ -63,16 +70,8 @@ public class ClienteServiceTest {
 
   @Test
   void deveriaRetornarIdDoNovoCliente() {
-    Cliente cliente = clienteDeTeste();
     when(mapper.clienteFromDto(any(ClienteInputDto.class))).thenReturn(cliente);
     when(repository.save(cliente)).thenReturn(cliente);
     assertEquals(cliente.getId(), service.saveCliente(new ClienteInputDto()));
   }
-
-  private Cliente clienteDeTeste() {
-    return Cliente.builder()
-        .id(UUID.randomUUID())
-        .build();
-  }
-
 }

@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.ufopa.spring.BaseTestContainer;
 import com.ufopa.spring.ClienteDataBuilder;
 import com.ufopa.spring.config.JpaConfig;
 import com.ufopa.spring.dto.ClienteResumoDto;
@@ -22,7 +23,7 @@ import com.ufopa.spring.model.Cliente;
 @ActiveProfiles("test")
 @DataJpaTest
 @Import(JpaConfig.class)
-public class ClienteRepositoryTest {
+public class ClienteRepositoryTest extends BaseTestContainer {
 
   @Autowired
   private ClienteRepository repository;

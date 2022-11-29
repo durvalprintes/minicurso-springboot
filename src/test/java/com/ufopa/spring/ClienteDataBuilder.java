@@ -1,10 +1,17 @@
 package com.ufopa.spring;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import com.ufopa.spring.model.Cliente;
 
 public class ClienteDataBuilder {
+
+  public static Cliente onlyWithId() {
+    return Cliente.builder()
+        .id(UUID.randomUUID())
+        .build();
+  }
 
   public static Cliente cliente1() {
     return Cliente.builder()

@@ -76,8 +76,6 @@ spring:
   config:
     activate:
       on-profile: test
-  datasource:
-    url: jdbc:tc:postgresql:15-alpine:///spring_boot_testcontainers
   jpa:
     hibernate:
       ddl-auto: create
