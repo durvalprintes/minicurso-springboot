@@ -19,7 +19,7 @@ Abaixo, segue os demais detalhes, para execução do projeto. Se houver erros ou
 
 ### Pré-requisitos
 
-É necessário instalar a JDK 11, Maven e o PostgreSQL na máquina local, mas indico o uso de _containers_, como o [Docker](https://www.docker.com/) com este projeto.
+É necessário instalar a JDK 11 e o PostgreSQL na máquina local, mas indico o uso de _containers_, como o [Docker](https://www.docker.com/) com este projeto.
 
 A aplicação faz uso de algumas variáveis de ambiente, então, na raiz do projeto, crie o arquivo ```dev.env``` e cole o texto abaixo, substituindo os **ASTERISCOS**, pelos valores que você desejar:
 ```
@@ -49,19 +49,19 @@ Se você executou com sucesso o comando anterior, o servidor já está rodando d
 
 Mas, se estiver com o ambiente local configurado com os pré-requisitos da seção anterior, crie somente o container de banco de dados com o comando:
 ```
-docker-compose -p minicurso --env-file dev.env -f docker/dev.docker-compose.yml up -d
+docker-compose -p minicurso -f docker/dev.docker-compose.yml --env-file dev.env up -d
 ```
 em seguida execute no terminal o comando maven abaixo, substituindo ```${API_DATABASE}``` pelo valor da variável no arquivo ```dev.env```:
 ```
-mvn spring-boot:run -Dspring-boot.run.profiles=dev -Dspring-boot.run.arguments=--spring.datasource.url=jdbc:postgresql://localhost:5432/${API_DATABASE}
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev -Dspring-boot.run.arguments=--spring.datasource.url=jdbc:postgresql://localhost:5432/${API_DATABASE}
 ```
 Através do maven também, você tem a opção de gerar o executável _JAR_, simplesmente aplicando o comando:
 ```
-mvn clean package
+./mvnw clean package
 ```
 E para executar, faça:
 ```
-java -jar spring-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
+java -jar target/spring-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev --spring.datasource.url=jdbc:postgresql://localhost:5432/${API_DATABASE}
 ```
 Esta última opção, tem o intuito de gerar o executável **final** de uma versão do projeto, visto que todo o código e dependências estão compiladas e embutidas, não refletindo novos ajustes.  
 
