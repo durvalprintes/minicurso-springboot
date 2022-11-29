@@ -6,15 +6,6 @@ server:
 spring:
   application:
     name: ufopa-minicurso-api-rest-springboot
-  datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PASS}
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQL10Dialect
-        '[default_schema]': ${DB_SCHEMA}
   mvc:
     pathmatch:
       matching-strategy: ant-path-matcher

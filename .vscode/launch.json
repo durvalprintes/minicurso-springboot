@@ -9,7 +9,8 @@
       "name": "Launch Application",
       "request": "launch",
       "mainClass": "com.ufopa.spring.Application",
-      "projectName": "spring"
+      "projectName": "spring",
+      "vmArgs": "-Dspring.profiles.active=dev"
     },
     {
       "type": "java",
