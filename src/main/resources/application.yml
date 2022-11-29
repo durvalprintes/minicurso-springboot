@@ -79,6 +79,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+    properties:
+      hibernate:
+        '[default_schema]': null
   sql:
     init:
       mode: never
