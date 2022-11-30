@@ -19,7 +19,7 @@ Abaixo, segue os passos para execução do projeto. Se houver erros ou estiver c
 
 ### Pré-requisitos
 
-É necessário instalar a JDK 11 e o Docker na máquina local.
+É necessário instalar na máquina local a JDK 11, o Docker e o _JAR_ do projeto **Tescontainers** para automatização de ambientes, execute o comando de instalação, descrita no [README](https://github.com/durvalprintes/testcontainers-auto-services-prototype/tree/pgsql_only#readme) do projeto.  
 
 ### Execução
 
