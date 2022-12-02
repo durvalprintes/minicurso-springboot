@@ -15,7 +15,7 @@ Projeto REST API, utilizado para o minicurso de Springboot, pertencente à progr
 ## 🚀 Começando <a name = "started"></a>
 
 Projeto é desenvolvido com Maven, Java 11 e Spring Boot 2.7.5. Veja em [Desenvolvimento](#development) para mais detalhes sobre os recursos abordados.
-Abaixo, segue os demais detalhes, para execução do projeto. Se houver erros ou estiver com dúvidas, você poderá contactar-me para ajuda-lo. 
+Abaixo, segue os passos para execução do projeto. Se houver erros ou estiver com dúvidas, você poderá contactar-me para ajuda-lo. 
 
 ### Pré-requisitos
 
@@ -23,18 +23,31 @@ Abaixo, segue os demais detalhes, para execução do projeto. Se houver erros ou
 
 A aplicação faz uso de algumas variáveis de ambiente, então, na raiz do projeto, crie o arquivo ```dev.env``` e cole o texto abaixo, substituindo os **ASTERISCOS**, pelos valores que você desejar:
 ```
-#NOME DO USUÁRIO DO BANCO DE DADOS
+#Nome do usuário do banco de dados
 API_USER=**********
-#SENHA DO USUÁRIO DO BANCO DE DADOS
+
+#Senha do usuário do banco de dados
 API_PASS=**********
-#NOME DO BANCO DE DADOS DA APLICAÇÃO 
+
+#Nome do banco de dados aplicação 
 API_DATABASE=**********
-#NOME DO ESQUEMA DA APLICAÇÃO
+
+#Nome do esquema da aplicação
 API_SCHEMA=**********
-#CAMINHO ABSOLUTO DO DIRETÓRIO DO USUÁRIO
+
+#Caminho absoluto do diretório do seu usuário de sistema
 API_LOCAL=$HOME
 ```
-Feito isso, vamos criar dois _containers_, um para o banco de dados e outro para o servidor da aplicação. Este último irá conter todas as configurações necessárias para o ambiente de desenvolvimento da Api. Abra o terminal, certifique-se que está no diretório do projeto e execute o único comando abaixo:
+E também de um par de chaves _RSA_, para isso, no terminal, navegue para ```/src/main/rescurces/certs``` e execute os seguintes comandos **OpenSSL**, para criação do par, extração de chave pública e de chave privada, respectivamente: 
+```
+openssl genrsa -out keypair.pem 2048
+
+openssl rsa -in keypair.pem -pubout -out public.pem
+
+openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in keypair.pem -out private.pem
+```
+
+Para finalizar, vamos criar dois _containers_, um para o banco de dados e outro para o servidor da aplicação. Este último irá conter todas as configurações necessárias para o ambiente de desenvolvimento da Api. Abra o terminal, certifique-se que, está na raiz do diretório do projeto e execute o único comando abaixo:
 ```
 docker-compose -p minicurso -f docker/dev.docker-compose.yml --env-file dev.env --profile api up --build
 ```
@@ -42,6 +55,8 @@ Se ocorrer erros, execute o próximo comando, corrija e tente o anterior novamen
 ```
 docker-compose -p minicurso -f docker/dev.docker-compose.yml --env-file dev.env down --volumes
 ```
+
+> **_Nota:_**  Caso ocorra o erro, que o script **mvnw** não foi encontrado, execute o comando ```dos2unix mvnw``` e tente novamente.
 
 ### Execução
 
@@ -80,7 +95,7 @@ Os seguintes conceitos, recursos e tecnologias são aplicados no projeto:
 - Pesquisas com Specifications;
 - Validações da entrada de dados;
 - Tratamento de exceções;
-- Autenticação e autorização;
+- Autenticação e autorização com JWT;
 - Testes unitários e de integração com Testcontainers e cobertura de testes;
 - Documentação com Swagger;
 - Monitoramento com Actuator;

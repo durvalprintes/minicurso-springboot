@@ -35,3 +35,6 @@ build/
 
 ### ENVIRONMENT VARIABLES ###
 **.env
+
+### CERTS ###
+*.pem

@@ -4,6 +4,16 @@
       "name": "home.hello",
       "type": "java.lang.String",
       "description": "Mensagem exibida na Home, quando sem usuário autenticado"
+    },
+    {
+      "name": "rsa.public-key",
+      "type": "java.lang.String",
+      "description": "Chave pública RSA"
+    },
+    {
+      "name": "rsa.private-key",
+      "type": "java.lang.String",
+      "description": "Chave privada RSA"
     }
   ]
 }

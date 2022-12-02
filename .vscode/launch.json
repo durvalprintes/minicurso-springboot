@@ -9,7 +9,9 @@
       "name": "Launch Application",
       "request": "launch",
       "mainClass": "com.ufopa.spring.Application",
-      "projectName": "spring"
+      "projectName": "spring",
+      "envFile": "${workspaceFolder}/dev.env",
+      "vmArgs": "-Dspring.profiles.active=dev -Dspring.datasource.url=jdbc:postgresql://localhost:5432/${API_DATABASE}"
     },
     {
       "type": "java",
