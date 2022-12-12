@@ -14,9 +14,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.ufopa.spring.ClienteDataBuilder;
+import com.ufopa.spring.config.security.SecurityCoreConfig;
 import com.ufopa.spring.dto.ClienteDetalheDto;
 import com.ufopa.spring.dto.ClienteInputDto;
 import com.ufopa.spring.dto.ClienteResumoDto;
@@ -27,6 +29,7 @@ import com.ufopa.spring.repository.ClienteRepository;
 
 @ActiveProfiles("test")
 @WebMvcTest(controllers = ClienteService.class)
+@Import(value = SecurityCoreConfig.class)
 public class ClienteServiceTest {
 
   @Autowired

@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,11 +44,10 @@ public class ClienteIntegrationTest extends BaseTestContainer {
   private ClienteMapper mapper;
 
   @Test
-  void deveriaRetornarResumodeClientes() {
+  void deveriaRetornarResumodeClientes() throws Exception {
     ResponseEntity<List<ClienteResumoDto>> response = api
-        .withBasicAuth("user", "password")
         .exchange("/clientes",
-            HttpMethod.GET, null,
+            HttpMethod.GET, requestWithBearerToken(),
             new ParameterizedTypeReference<List<ClienteResumoDto>>() {
             });
     assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -60,10 +61,11 @@ public class ClienteIntegrationTest extends BaseTestContainer {
   }
 
   @Test
-  void deveriaRetornarDetalheDeCliente() {
+  void deveriaRetornarDetalheDeCliente() throws Exception {
     ResponseEntity<ClienteDetalheDto> response = api
         .withBasicAuth("user", "password")
-        .getForEntity("/clientes/ " + ID_CLIENTE1.toString(), ClienteDetalheDto.class);
+        .exchange("/clientes/ " + ID_CLIENTE1.toString(), HttpMethod.GET, requestWithBearerToken(),
+            ClienteDetalheDto.class);
     assertNotNull(response.getBody());
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(response.getBody());
@@ -72,6 +74,19 @@ public class ClienteIntegrationTest extends BaseTestContainer {
     var cliente = repository.findById(ID_CLIENTE1).get();
 
     assertEquals(mapper.clienteToDetalheDto(cliente).hashCode(), detalheCliente.hashCode());
+  }
+
+  private HttpEntity<?> requestWithBearerToken() throws Exception {
+    var headers = new HttpHeaders();
+    headers.set("Authorization",
+        "Bearer " + getToken());
+    return new HttpEntity<>(headers);
+  }
+
+  private String getToken() {
+    return api
+        .withBasicAuth("user", "password")
+        .postForEntity("/token", null, String.class).getBody();
   }
 
 }

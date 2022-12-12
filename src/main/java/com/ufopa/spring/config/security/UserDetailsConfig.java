@@ -1,4 +1,4 @@
-package com.ufopa.spring.config;
+package com.ufopa.spring.config.security;
 
 import java.util.stream.Stream;
 
@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
-import com.ufopa.spring.config.SecurityConfig.PERMISSAO;
+import com.ufopa.spring.config.security.SecurityCoreConfig.PERMISSAO;
 
 @Configuration
 public class UserDetailsConfig {

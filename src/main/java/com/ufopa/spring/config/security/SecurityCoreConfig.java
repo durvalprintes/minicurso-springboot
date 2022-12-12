@@ -1,7 +1,8 @@
-package com.ufopa.spring.config;
+package com.ufopa.spring.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
@@ -22,11 +23,11 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import com.ufopa.spring.security.AuthRequestFilter;
 
 @Configuration
+@ComponentScan
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityCoreConfig {
 
   enum PERMISSAO {
     LEITURA, ESCRITA;

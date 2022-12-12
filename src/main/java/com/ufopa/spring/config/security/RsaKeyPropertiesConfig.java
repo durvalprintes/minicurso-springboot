@@ -1,4 +1,4 @@
-package com.ufopa.spring.config;
+package com.ufopa.spring.config.security;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;

@@ -12,11 +12,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.ufopa.spring.config.SecurityConfig;
+import com.ufopa.spring.config.security.SecurityCoreConfig;
 
 @ActiveProfiles("test")
 @WebMvcTest(controllers = HomeController.class)
-@Import(value = SecurityConfig.class)
+@Import(value = SecurityCoreConfig.class)
 public class HomeControllerTest {
 
   private static final String PATH_HELLO_ENDPOINT = "/home/hello";

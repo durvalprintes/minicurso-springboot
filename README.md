@@ -38,7 +38,7 @@ API_SCHEMA=**********
 #Caminho absoluto do diretório do seu usuário de sistema
 API_LOCAL=$HOME
 ```
-E também de um par de chaves _RSA_, para isso, no terminal, navegue para ```/src/main/rescurces/certs``` e execute os seguintes comandos **OpenSSL**, para criação do par, extração de chave pública e de chave privada, respectivamente: 
+E também de um par de chaves _RSA_, para isso, no terminal, navegue para ```/src/main/rescurces/certs``` e execute os comandos **OpenSSL** separadamente abaixo, para criação do par, extração de chave pública e criação de chave privada, respectivamente:
 ```
 openssl genrsa -out keypair.pem 2048
 

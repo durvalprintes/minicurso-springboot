@@ -17,9 +17,7 @@ public class AuthController {
   @PostMapping("/token")
   public String token(Authentication authentication) {
     log.debug("Token requisitado pelo usuario: '{}'", authentication.getName());
-    String token = service.generateToken(authentication);
-    log.debug("Token criado: {}", token);
-    return token;
+    return service.generateToken(authentication);
   }
 
 }

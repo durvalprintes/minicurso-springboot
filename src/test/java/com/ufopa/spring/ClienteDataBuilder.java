@@ -31,4 +31,30 @@ public class ClienteDataBuilder {
         .build();
   }
 
+  public static String clienteJson() {
+    return "{" +
+        "\"nome\":\"CLIENTE TESTE\", " +
+        "\"dataNascimento\":\"2001-01-20\", " +
+        "\"email\":\"TESTE@TESTANDO.COM\", " +
+        "\"telefone\":\"91999999999\" " +
+        "}";
+  }
+
+  public static String clienteJsonComSomenteDataInvalida() {
+    return "{" +
+        "\"nome\":\"CLIENTE TESTE\", " +
+        "\"dataNascimento\":\"1889-01-20\", " +
+        "\"email\":\"TESTE@TESTANDO.COM\", " +
+        "\"telefone\":\"91888888888\" " +
+        "}";
+  }
+
+  public static String clienteJsonComTodosCamposInvalidos() {
+    return "{" +
+        "\"nome\":\"Cliente TESTE\", " +
+        "\"email\":\"teste\", " +
+        "\"telefone\":\"TESTANDO\" " +
+        "}";
+  }
+
 }

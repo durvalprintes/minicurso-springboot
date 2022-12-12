@@ -33,17 +33,21 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ufopa.spring.config.SecurityConfig;
+import com.ufopa.spring.ClienteDataBuilder;
+import com.ufopa.spring.config.security.SecurityCoreConfig;
 import com.ufopa.spring.dto.ClienteInputDto;
 import com.ufopa.spring.dto.ClienteResumoDto;
 import com.ufopa.spring.exception.ErrorCampoDto;
+import com.ufopa.spring.security.AuthController;
+import com.ufopa.spring.security.AuthService;
 import com.ufopa.spring.service.ClienteService;
 
 @ActiveProfiles("test")
-@WebMvcTest(controllers = ClienteController.class)
-@Import(value = SecurityConfig.class)
+@WebMvcTest(controllers = { ClienteController.class })
+@Import(value = { SecurityCoreConfig.class, AuthController.class, AuthService.class })
 public class ClienteControllerTest {
 
   @Autowired
@@ -71,8 +75,7 @@ public class ClienteControllerTest {
     ClienteResumoDto resumo = new ClienteResumoDto(UUID.randomUUID(), "CLIENTE TESTE", "TESTE@TESTANDO.COM");
     when(service.getClientes()).thenReturn(List.of(resumo));
 
-    request
-        .perform(get("/clientes"))
+    executaGetComBearerToken()
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", is(notNullValue())))
         .andExpect(jsonPath("$", hasSize(1)))
@@ -83,18 +86,13 @@ public class ClienteControllerTest {
   @WithUserDetails(value = "user")
   void deveriaRetornarSemConteudo() throws Exception {
     when(service.getClientes()).thenReturn(new ArrayList<>());
-    
-    request
-    .perform(get("/clientes"))
-    .andExpect(status().isNoContent());
+    executaGetComBearerToken().andExpect(status().isNoContent());
   }
 
   @Test
   @WithUserDetails(value = "user")
   void deveriaRetornarError403ComUsuarioSemPermissao() throws Exception {
-    request
-        .perform(post("/clientes"))
-        .andExpect(status().isForbidden());
+    executaPostComBearerToken().andExpect(status().isForbidden());
   }
 
   @Test
@@ -104,11 +102,7 @@ public class ClienteControllerTest {
     when(service.isUnique(anyString())).thenReturn(true);
     when(service.saveCliente(any(ClienteInputDto.class))).thenReturn(id);
 
-    String location = request
-        .perform(
-            post("/clientes")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(clienteJson()))
+    String location = executaPostComBearerToken()
         .andExpect(status().isCreated())
         .andReturn().getResponse().getHeader("location");
     assertNotNull(location);
@@ -119,7 +113,7 @@ public class ClienteControllerTest {
   void deveriaRetornarArgumentNotValidExceptionComCamposNaoUnicos() throws Exception {
     when(service.isUnique(anyString())).thenReturn(false);
 
-    List<ErrorCampoDto> lista = executaPostComClienteJson(clienteJson());
+    List<ErrorCampoDto> lista = executaPostComValidacoes(ClienteDataBuilder.clienteJson());
     assertEquals(2, lista.size());
   }
 
@@ -127,8 +121,7 @@ public class ClienteControllerTest {
   void deveriaRetornarArgumentNotValidExceptionComDataInvalida() throws Exception {
     when(service.isUnique(anyString())).thenReturn(true);
 
-    
-    List<ErrorCampoDto> lista = executaPostComClienteJson(clienteJsonComSomenteDataInvalida());
+    List<ErrorCampoDto> lista = executaPostComValidacoes(ClienteDataBuilder.clienteJsonComSomenteDataInvalida());
     assertEquals(1, lista.size());
     assertEquals("dataNascimento", lista.get(0).getCampo());
   }
@@ -137,17 +130,30 @@ public class ClienteControllerTest {
   void deveriaRetornarArgumentNotValidExceptionComInsertDeCamposInvalidos() throws Exception {
     when(service.isUnique(anyString())).thenReturn(true);
 
-    List<ErrorCampoDto> lista = executaPostComClienteJson(clienteJsonComTodosCamposInvalidos());
+    List<ErrorCampoDto> lista = executaPostComValidacoes(ClienteDataBuilder.clienteJsonComTodosCamposInvalidos());
     assertEquals(5, lista.size());
   }
 
-  private List<ErrorCampoDto> executaPostComClienteJson(String json) throws Exception {
-    String response = request
+  private ResultActions executaGetComBearerToken() throws Exception {
+    return request.perform(get("/clientes").header("Authorization", "Bearer " + getToken()));
+  }
+
+  private ResultActions executaPostComBearerToken() throws Exception {
+    return request
         .perform(
             post("/clientes")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json)
-                .with(httpBasic("admin2", "password")))
+                .content(ClienteDataBuilder.clienteJson())
+                .header("Authorization", "Bearer " + getToken()));
+  }
+
+  private List<ErrorCampoDto> executaPostComValidacoes(String json) throws Exception {
+    String response = request
+        .perform(
+            post("/clientes")
+                .header("Authorization", "Bearer " + getToken("admin2", "password"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.status", is(400)))
         .andExpect(jsonPath("$.descricao", is("Entrada de dados inválida")))
@@ -160,30 +166,18 @@ public class ClienteControllerTest {
         .collect(Collectors.toList());
   }
 
-  private String clienteJson() {
-    return "{" +
-        "\"nome\":\"CLIENTE TESTE\", " +
-        "\"dataNascimento\":\"2001-01-20\", " +
-        "\"email\":\"TESTE@TESTANDO.COM\", " +
-        "\"telefone\":\"91999999999\" " +
-        "}";
+  private String getToken() throws Exception {
+    String token = request
+        .perform(post("/token"))
+        .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+    return token;
   }
 
-  private String clienteJsonComSomenteDataInvalida() {
-    return "{" +
-        "\"nome\":\"CLIENTE TESTE\", " +
-        "\"dataNascimento\":\"1889-01-20\", " +
-        "\"email\":\"TESTE@TESTANDO.COM\", " +
-        "\"telefone\":\"91888888888\" " +
-        "}";
-  }
-
-  private String clienteJsonComTodosCamposInvalidos() {
-    return "{" +
-        "\"nome\":\"Cliente TESTE\", " +
-        "\"email\":\"teste\", " +
-        "\"telefone\":\"TESTANDO\" " +
-        "}";
+  private String getToken(String username, String password) throws Exception {
+    String token = request
+        .perform(post("/token").with(httpBasic(username, password)))
+        .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+    return token;
   }
 
 }

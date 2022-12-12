@@ -1,4 +1,4 @@
-package com.ufopa.spring.security;
+package com.ufopa.spring.config.security;
 
 import java.io.IOException;
 
@@ -30,15 +30,18 @@ public class AuthRequestFilter extends OncePerRequestFilter {
   private JwtDecoder decoder;
 
   @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    return request.getRequestURI().contains("/home") || request.getRequestURI().contains("/token");
+  }
+
+  @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
 
     String autorizacao = request.getHeader("Authorization");
-    String subjectToken = null;
-    String token = null;
-    if (!request.getRequestURI().endsWith("/token") &&
-        autorizacao != null && autorizacao.startsWith("Bearer ")) {
-      token = autorizacao.substring(7);
+    if (autorizacao != null && autorizacao.startsWith("Bearer ")) {
+      String subjectToken = null;
+      String token = autorizacao.substring(7);
       try {
         subjectToken = this.getSubjectFromToken(token);
       } catch (Exception e) {
