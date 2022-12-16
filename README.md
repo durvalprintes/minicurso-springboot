@@ -14,7 +14,7 @@ Projeto REST API, utilizado para o minicurso de Springboot, pertencente à progr
 
 ## 🚀 Começando <a name = "started"></a>
 
-Projeto é desenvolvido com Maven, Java 11 e Spring Boot 2.7.5. Veja em [Desenvolvimento](#development) para mais detalhes sobre os recursos abordados.
+Projeto é desenvolvido com Maven, Java 11 e Spring Boot 2.7.6. Veja em [Desenvolvimento](#development) para mais detalhes sobre os recursos abordados.
 Abaixo, segue os passos para execução do projeto. Se houver erros ou estiver com dúvidas, você poderá contactar-me para ajuda-lo. 
 
 ### Pré-requisitos
@@ -100,6 +100,7 @@ Os seguintes conceitos, recursos e tecnologias são aplicados no projeto:
 - Documentação com Swagger;
 - Monitoramento com Actuator;
 - Conteinerização da aplicação para desenvolvimento;
+- Versionamento de bancos e dados com Flyway;
 
 ## 🎉 Agradecimento <a name = "thanks"></a>
 Agradeço ao convite da docente Flávia Monteiro para ministrar e incentivar o compartilhamento do conhecimento entre todos os envolvidos.

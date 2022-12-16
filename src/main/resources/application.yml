@@ -20,6 +20,8 @@ spring:
       matching-strategy: ant-path-matcher
   web:
     locale: pt_BR
+  flyway:
+    schemas: ${DB_SCHEMA}
 
 home:
   hello: world
@@ -56,13 +58,10 @@ spring:
       on-profile: dev
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate:
         '[format_sql]': true
-    defer-datasource-initialization: true
-  sql:
-    init.mode: always
 
 logging:
   level:
@@ -80,15 +79,8 @@ spring:
   config:
     activate:
       on-profile: test
-  jpa:
-    hibernate:
-      ddl-auto: create
-    properties:
-      hibernate:
-        '[default_schema]': null
-  sql:
-    init:
-      mode: never
+  flyway:
+    schemas: test
   test:
     database:
       replace: none

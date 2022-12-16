@@ -23,6 +23,7 @@
 		<springfox.version>3.0.0</springfox.version>
 		<testcontainers.version>1.17.6</testcontainers.version>
 		<jsonwebtoken.version>0.11.5</jsonwebtoken.version>
+		<flyway.version>9.10.0</flyway.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -136,6 +137,12 @@
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
 			<version>${jsonwebtoken.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+			<version>${flyway.version}</version>
 		</dependency>
 	</dependencies>
 

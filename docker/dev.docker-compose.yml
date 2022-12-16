@@ -14,11 +14,9 @@ services:
       - POSTGRES_USER=${API_USER}
       - POSTGRES_PASSWORD=${API_PASS}
       - POSTGRES_DB=${API_DATABASE}
-      - POSTGRES_SCHEMA=${API_SCHEMA}
     ports:
       - 5432:5432
     volumes:
-      - ./script/db_init.sh:/docker-entrypoint-initdb.d/schemas.sh
       - ufopa_minicurso_postgres_data:/var/lib/postgresql/data
     networks:
       - ufopa

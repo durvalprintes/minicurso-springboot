@@ -18,7 +18,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ufopa.spring.BaseTestContainer;
@@ -29,7 +28,6 @@ import com.ufopa.spring.mapper.ClienteMapper;
 import com.ufopa.spring.repository.ClienteRepository;
 
 @ActiveProfiles("test")
-@Sql(scripts = "classpath:init.sql")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ClienteIntegrationTest extends BaseTestContainer {
 
