@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +33,7 @@ public class AuthRequestFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-    return request.getRequestURI().contains("/home") || request.getRequestURI().contains("/token");
+    return request.getRequestURI().contains("/home") || request.getRequestURI().contains("/login");
   }
 
   @Override
@@ -39,31 +41,28 @@ public class AuthRequestFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
 
     String autorizacao = request.getHeader("Authorization");
-    if (autorizacao != null && autorizacao.startsWith("Bearer ")) {
-      String subjectToken = null;
-      String token = autorizacao.substring(7);
+    if (StringUtils.hasText(autorizacao) && autorizacao.startsWith("Bearer ")) {
+      String username = null;
       try {
-        subjectToken = this.getSubjectFromToken(token);
+        username = this.getUsernameFromToken(autorizacao.substring(7));
       } catch (Exception e) {
-        log.error("Token invalido");
+        throw new AuthenticationCredentialsNotFoundException("Token invalido");
       }
-
-      if (subjectToken != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-        UserDetails usuario = userInMemory.loadUserByUsername(subjectToken);
+      if (StringUtils.hasText(username)) {
+        UserDetails usuario = userInMemory.loadUserByUsername(username);
         UsernamePasswordAuthenticationToken usuarioAutenticado = new UsernamePasswordAuthenticationToken(
             usuario, null, usuario.getAuthorities());
         usuarioAutenticado.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(usuarioAutenticado);
         log.debug("Usuario autenticado: {}", SecurityContextHolder.getContext().getAuthentication().getName());
       }
-
     } else {
-      SecurityContextHolder.clearContext();
+      throw new AuthenticationCredentialsNotFoundException("Token nao encontrado");
     }
     filterChain.doFilter(request, response);
   }
 
-  private String getSubjectFromToken(String token) {
+  private String getUsernameFromToken(String token) {
     return decoder.decode(token).getSubject();
   }
 

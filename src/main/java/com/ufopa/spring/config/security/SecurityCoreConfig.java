@@ -44,13 +44,15 @@ public class SecurityCoreConfig {
   private RsaKeyPropertiesConfig chaves;
 
   @Bean
-  public SecurityFilterChain configure(HttpSecurity http, AuthRequestFilter requestFilter) throws Exception {
+  public SecurityFilterChain configure(HttpSecurity http, AuthRequestFilter requestFilter,
+      AuthExceptionHandling handler)
+      throws Exception {
     return http
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeRequests(auth -> {
           auth.antMatchers(SWAGGER).permitAll();
-          auth.antMatchers("/home/hello").permitAll();
-          auth.antMatchers("/token").authenticated();
+          auth.antMatchers("/home/**").permitAll();
+          auth.antMatchers("/login").authenticated();
           auth.antMatchers("/manage/**").hasAuthority(this.getScopeAuthority(PERMISSAO.ESCRITA.name()));
           auth.antMatchers(HttpMethod.GET).hasAuthority(this.getScopeAuthority(PERMISSAO.LEITURA.name()));
           auth.anyRequest().hasAuthority(this.getScopeAuthority(PERMISSAO.ESCRITA.name()));
@@ -59,6 +61,7 @@ public class SecurityCoreConfig {
         .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
         .addFilterAfter(requestFilter, UsernamePasswordAuthenticationFilter.class)
         .httpBasic(Customizer.withDefaults())
+        .exceptionHandling(exception -> exception.authenticationEntryPoint(handler).accessDeniedHandler(handler))
         .build();
   }
 

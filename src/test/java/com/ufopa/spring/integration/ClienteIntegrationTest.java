@@ -20,9 +20,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ufopa.spring.BaseTestContainer;
 import com.ufopa.spring.dto.ClienteDetalheDto;
 import com.ufopa.spring.dto.ClienteResumoDto;
+import com.ufopa.spring.dto.LoginDto;
 import com.ufopa.spring.mapper.ClienteMapper;
 import com.ufopa.spring.repository.ClienteRepository;
 
@@ -46,8 +48,7 @@ public class ClienteIntegrationTest extends BaseTestContainer {
   @Test
   void deveriaRetornarResumodeClientes() throws Exception {
     ResponseEntity<List<ClienteResumoDto>> response = api
-        .exchange("/clientes",
-            HttpMethod.GET, requestWithBearerToken(),
+        .exchange("/clientes", HttpMethod.GET, requestWithAuthorization(),
             new ParameterizedTypeReference<List<ClienteResumoDto>>() {
             });
     assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -63,10 +64,8 @@ public class ClienteIntegrationTest extends BaseTestContainer {
   @Test
   void deveriaRetornarDetalheDeCliente() throws Exception {
     ResponseEntity<ClienteDetalheDto> response = api
-        .withBasicAuth("user", "password")
-        .exchange("/clientes/ " + ID_CLIENTE1.toString(), HttpMethod.GET, requestWithBearerToken(),
+        .exchange("/clientes/ " + ID_CLIENTE1.toString(), HttpMethod.GET, requestWithAuthorization(),
             ClienteDetalheDto.class);
-    assertNotNull(response.getBody());
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(response.getBody());
 
@@ -76,17 +75,20 @@ public class ClienteIntegrationTest extends BaseTestContainer {
     assertEquals(mapper.clienteToDetalheDto(cliente).hashCode(), detalheCliente.hashCode());
   }
 
-  private HttpEntity<?> requestWithBearerToken() throws Exception {
+  private HttpEntity<?> requestWithAuthorization() throws Exception {
+    LoginDto login = executaLogin();
     var headers = new HttpHeaders();
-    headers.set("Authorization",
-        "Bearer " + getToken());
+    headers.set("Authorization", login.getTokenType() + login.getAccessToken());
     return new HttpEntity<>(headers);
   }
 
-  private String getToken() {
-    return api
+  private LoginDto executaLogin() throws Exception {
+    String login = api
         .withBasicAuth("user", "password")
-        .postForEntity("/token", null, String.class).getBody();
+        .postForEntity("/login", null, String.class).getBody();
+    var mapper = new ObjectMapper();
+    return mapper.readValue(login, LoginDto.class);
+
   }
 
 }

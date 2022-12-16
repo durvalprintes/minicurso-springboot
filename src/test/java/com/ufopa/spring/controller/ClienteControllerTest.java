@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,25 +30,31 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ufopa.spring.ClienteDataBuilder;
 import com.ufopa.spring.config.security.SecurityCoreConfig;
 import com.ufopa.spring.dto.ClienteInputDto;
 import com.ufopa.spring.dto.ClienteResumoDto;
+import com.ufopa.spring.dto.LoginDto;
 import com.ufopa.spring.exception.ErrorCampoDto;
-import com.ufopa.spring.security.AuthController;
-import com.ufopa.spring.security.AuthService;
 import com.ufopa.spring.service.ClienteService;
+import com.ufopa.spring.service.LoginService;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@SuppressWarnings("squid:S5778")
 @ActiveProfiles("test")
 @WebMvcTest(controllers = { ClienteController.class })
-@Import(value = { SecurityCoreConfig.class, AuthController.class, AuthService.class })
+@Import(value = { SecurityCoreConfig.class, LoginController.class, LoginService.class })
 public class ClienteControllerTest {
 
   @Autowired
@@ -57,16 +64,17 @@ public class ClienteControllerTest {
   private ClienteService service;
 
   @Test
-  void deveriaRetornarError401SemUsuarioAutenticado() throws Exception {
-    request.perform(get("/clientes")).andExpect(status().isUnauthorized());
+  void deveriaRetornarError401ComTokenNaoEncontrado() throws Exception {
+    Exception exception = assertThrows(AuthenticationCredentialsNotFoundException.class,
+        () -> request.perform(get("/clientes")).andExpect(status().isUnauthorized()));
+    assertEquals("Token nao encontrado", exception.getMessage());
   }
 
   @Test
-  @WithAnonymousUser
-  void deveriaRetornarError401ComUsuarioIncorreto() throws Exception {
-    request
-        .perform(get("/clientes"))
-        .andExpect(status().isUnauthorized());
+  void deveriaRetornarError401ComTokenIncorreto() throws Exception {
+    Exception exception = assertThrows(AuthenticationCredentialsNotFoundException.class,
+        () -> executaGetClientes("token").andExpect(status().isUnauthorized()));
+    assertEquals("Token invalido", exception.getMessage());
   }
 
   @Test
@@ -75,7 +83,7 @@ public class ClienteControllerTest {
     ClienteResumoDto resumo = new ClienteResumoDto(UUID.randomUUID(), "CLIENTE TESTE", "TESTE@TESTANDO.COM");
     when(service.getClientes()).thenReturn(List.of(resumo));
 
-    executaGetComBearerToken()
+    executaGetClientes(null)
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", is(notNullValue())))
         .andExpect(jsonPath("$", hasSize(1)))
@@ -86,13 +94,13 @@ public class ClienteControllerTest {
   @WithUserDetails(value = "user")
   void deveriaRetornarSemConteudo() throws Exception {
     when(service.getClientes()).thenReturn(new ArrayList<>());
-    executaGetComBearerToken().andExpect(status().isNoContent());
+    executaGetClientes(null).andExpect(status().isNoContent());
   }
 
   @Test
   @WithUserDetails(value = "user")
   void deveriaRetornarError403ComUsuarioSemPermissao() throws Exception {
-    executaPostComBearerToken().andExpect(status().isForbidden());
+    executaPostClientes().andExpect(status().isForbidden());
   }
 
   @Test
@@ -102,7 +110,7 @@ public class ClienteControllerTest {
     when(service.isUnique(anyString())).thenReturn(true);
     when(service.saveCliente(any(ClienteInputDto.class))).thenReturn(id);
 
-    String location = executaPostComBearerToken()
+    String location = executaPostClientes()
         .andExpect(status().isCreated())
         .andReturn().getResponse().getHeader("location");
     assertNotNull(location);
@@ -113,7 +121,7 @@ public class ClienteControllerTest {
   void deveriaRetornarArgumentNotValidExceptionComCamposNaoUnicos() throws Exception {
     when(service.isUnique(anyString())).thenReturn(false);
 
-    List<ErrorCampoDto> lista = executaPostComValidacoes(ClienteDataBuilder.clienteJson());
+    List<ErrorCampoDto> lista = executaPostClientesComAssertivas(ClienteDataBuilder.clienteJson());
     assertEquals(2, lista.size());
   }
 
@@ -121,7 +129,7 @@ public class ClienteControllerTest {
   void deveriaRetornarArgumentNotValidExceptionComDataInvalida() throws Exception {
     when(service.isUnique(anyString())).thenReturn(true);
 
-    List<ErrorCampoDto> lista = executaPostComValidacoes(ClienteDataBuilder.clienteJsonComSomenteDataInvalida());
+    List<ErrorCampoDto> lista = executaPostClientesComAssertivas(ClienteDataBuilder.clienteJsonComSomenteDataInvalida());
     assertEquals(1, lista.size());
     assertEquals("dataNascimento", lista.get(0).getCampo());
   }
@@ -130,28 +138,38 @@ public class ClienteControllerTest {
   void deveriaRetornarArgumentNotValidExceptionComInsertDeCamposInvalidos() throws Exception {
     when(service.isUnique(anyString())).thenReturn(true);
 
-    List<ErrorCampoDto> lista = executaPostComValidacoes(ClienteDataBuilder.clienteJsonComTodosCamposInvalidos());
+    List<ErrorCampoDto> lista = executaPostClientesComAssertivas(ClienteDataBuilder.clienteJsonComTodosCamposInvalidos());
     assertEquals(5, lista.size());
   }
 
-  private ResultActions executaGetComBearerToken() throws Exception {
-    return request.perform(get("/clientes").header("Authorization", "Bearer " + getToken()));
+  private ResultActions executaGetClientes(String token) throws Exception {
+    return request.perform(get("/clientes").header("Authorization", getAuthorization(token)));
   }
 
-  private ResultActions executaPostComBearerToken() throws Exception {
+  private String getAuthorization(String token) throws Exception {
+    if (StringUtils.hasText(token)) {
+      return "Bearer " + token;
+    }
+    LoginDto login = executaLogin(null);
+    return login.getTokenType() + login.getAccessToken();
+  }
+
+  private ResultActions executaPostClientes() throws Exception {
+    LoginDto login = executaLogin(null);
     return request
         .perform(
             post("/clientes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ClienteDataBuilder.clienteJson())
-                .header("Authorization", "Bearer " + getToken()));
+                .header("Authorization", login.getTokenType() + login.getAccessToken()));
   }
 
-  private List<ErrorCampoDto> executaPostComValidacoes(String json) throws Exception {
+  private List<ErrorCampoDto> executaPostClientesComAssertivas(String json) throws Exception {
+    LoginDto login = executaLogin(new Credenciais("admin2", "password"));
     String response = request
         .perform(
             post("/clientes")
-                .header("Authorization", "Bearer " + getToken("admin2", "password"))
+                .header("Authorization", login.getTokenType() + login.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
         .andExpect(status().isBadRequest())
@@ -166,18 +184,27 @@ public class ClienteControllerTest {
         .collect(Collectors.toList());
   }
 
-  private String getToken() throws Exception {
-    String token = request
-        .perform(post("/token"))
+  private LoginDto executaLogin(Credenciais credenciais) throws Exception {
+    String login = request
+        .perform(credenciais != null ? postRequest(credenciais) : postRequest())
         .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
-    return token;
+    var mapper = new ObjectMapper();
+    return mapper.readValue(login, LoginDto.class);
   }
 
-  private String getToken(String username, String password) throws Exception {
-    String token = request
-        .perform(post("/token").with(httpBasic(username, password)))
-        .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
-    return token;
+  private RequestBuilder postRequest() {
+    return post("/login");
   }
 
+  private RequestBuilder postRequest(Credenciais credenciais) {
+    return post("/login").with(httpBasic(credenciais.getUsername(), credenciais.getPassword()));
+  }
+
+}
+
+@Getter
+@AllArgsConstructor
+class Credenciais {
+  private String username;
+  private String password;
 }

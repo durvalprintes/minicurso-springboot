@@ -1,4 +1,4 @@
-package com.ufopa.spring.security;
+package com.ufopa.spring.service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthService {
+public class LoginService {
 
   @Autowired
   private JwtEncoder encoder;
@@ -24,10 +24,9 @@ public class AuthService {
         .map(GrantedAuthority::getAuthority)
         .collect(Collectors.joining(" "));
     JwtClaimsSet claims = JwtClaimsSet.builder()
-        .issuer("self")
+        .subject(authentication.getName())
         .issuedAt(now)
         .expiresAt(now.plus(1, ChronoUnit.HOURS))
-        .subject(authentication.getName())
         .claim("scope", scope)
         .build();
     return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
